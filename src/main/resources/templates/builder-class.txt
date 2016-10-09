@@ -1,0 +1,6 @@
+package ${package};
+
+@javax.annotation.Generated(value="jusecase-builders-generator")
+public class ${builder-class} implements org.jusecase.builders.Builder<${entity-class}> {
+${body}
+}

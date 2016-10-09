@@ -1,0 +1,25 @@
+package org.jusecase.builders.generator.entities;
+
+@javax.annotation.Generated(value="jusecase-builders-generator")
+public class UserBuilder implements org.jusecase.builders.Builder<User> {
+    protected User entity;
+
+    public UserBuilder() {
+        entity = new User();
+    }
+
+    @Override
+    public User build() {
+        return entity;
+    }
+
+    public UserBuilder withName(String value) {
+        entity.setName(value);
+        return this;
+    }
+
+    public UserBuilder withCreationDate(java.util.Date value) {
+        entity.setCreationDate(value);
+        return this;
+    }
+}

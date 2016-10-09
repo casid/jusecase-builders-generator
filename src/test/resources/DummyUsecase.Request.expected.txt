@@ -1,0 +1,25 @@
+package org.jusecase.builders.generator.usecases;
+
+@javax.annotation.Generated(value="jusecase-builders-generator")
+public class DummyUsecaseRequestBuilder implements org.jusecase.builders.Builder<DummyUsecase.Request> {
+    protected DummyUsecase.Request entity;
+
+    public DummyUsecaseRequestBuilder() {
+        entity = new DummyUsecase.Request();
+    }
+
+    @Override
+    public DummyUsecase.Request build() {
+        return entity;
+    }
+
+    public DummyUsecaseRequestBuilder withDummyEmail(String value) {
+        entity.dummyEmail = value;
+        return this;
+    }
+
+    public DummyUsecaseRequestBuilder withDummyPassword(String value) {
+        entity.dummyPassword = value;
+        return this;
+    }
+}

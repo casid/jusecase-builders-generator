@@ -1,0 +1,4 @@
+    public ${builder-class} with${property-name-starting-with-uppercase}(${property-type} value) {
+        entity.${property-name} = value;
+        return this;
+    }

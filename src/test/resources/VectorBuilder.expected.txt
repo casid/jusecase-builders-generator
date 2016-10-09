@@ -1,0 +1,30 @@
+package org.jusecase.builders.generator.entities;
+
+@javax.annotation.Generated(value="jusecase-builders-generator")
+public class VectorBuilder implements org.jusecase.builders.Builder<Vector> {
+    protected Vector entity;
+
+    public VectorBuilder() {
+        entity = new Vector();
+    }
+
+    @Override
+    public Vector build() {
+        return entity;
+    }
+
+    public VectorBuilder withX(double value) {
+        entity.x = value;
+        return this;
+    }
+
+    public VectorBuilder withY(double value) {
+        entity.y = value;
+        return this;
+    }
+
+    public VectorBuilder withZ(double value) {
+        entity.z = value;
+        return this;
+    }
+}

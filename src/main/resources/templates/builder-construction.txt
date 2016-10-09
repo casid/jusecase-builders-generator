@@ -1,0 +1,10 @@
+    protected ${entity-class} entity;
+
+    public ${builder-class}() {
+        entity = new ${entity-class}();
+    }
+
+    @Override
+    public ${entity-class} build() {
+        return entity;
+    }
