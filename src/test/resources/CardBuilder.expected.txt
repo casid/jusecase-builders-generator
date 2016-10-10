@@ -1,0 +1,43 @@
+package org.jusecase.builders.generator.entities;
+
+import org.jusecase.builders.Builder;
+
+@javax.annotation.Generated(value="jusecase-builders-generator")
+public interface CardBuilderMethods<T extends Card, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withBlackMarketOffer(boolean value) {
+        getEntity().setBlackMarketOffer(value);
+        return (B)this;
+    }
+
+    default B withForgeable(boolean value) {
+        getEntity().setForgeable(value);
+        return (B)this;
+    }
+
+    default B withId(long value) {
+        getEntity().setId(value);
+        return (B)this;
+    }
+
+    default B withName(String value) {
+        getEntity().setName(value);
+        return (B)this;
+    }
+
+    default B withRarity(int value) {
+        getEntity().setRarity(value);
+        return (B)this;
+    }
+
+    default B withSinceVersion(String value) {
+        getEntity().setSinceVersion(value);
+        return (B)this;
+    }
+}

@@ -1,4 +1,0 @@
-    public ${builder-class} with${property-name}(${property-type} value) {
-        entity.set${property-name}(value);
-        return this;
-    }

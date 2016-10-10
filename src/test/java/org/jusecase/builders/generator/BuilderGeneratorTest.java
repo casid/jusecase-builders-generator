@@ -2,6 +2,8 @@ package org.jusecase.builders.generator;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.jusecase.builders.generator.entities.Card;
+import org.jusecase.builders.generator.entities.Goblin;
 import org.jusecase.builders.generator.entities.User;
 import org.jusecase.builders.generator.entities.Vector;
 import org.jusecase.builders.generator.usecases.DummyUsecase;
@@ -41,18 +43,29 @@ public class BuilderGeneratorTest {
         thenGeneratedBuilderIsEqualTo("DummyUsecase.Request.expected.txt");
     }
 
+    @Test
+    public void goblin() {
+        givenEntityClass(Goblin.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("GoblinBuilder.expected.txt");
+    }
+
+    @Test
+    public void card() {
+        givenEntityClass(Card.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("CardBuilder.expected.txt");
+    }
+
     private void givenEntityClass(Class<?> entityClass) {
         this.entityClass = entityClass;
     }
 
     private void whenBuilderIsGenerated() {
-        try {
-
-            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                BuilderGenerator generator = new BuilderGenerator(entityClass, os, encoding, lineSeparator);
-                generator.generate();
-                generatedOutput = os.toString(encoding);
-            }
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            BuilderGenerator generator = new BuilderGenerator(entityClass, os, encoding, lineSeparator);
+            generator.generate();
+            generatedOutput = os.toString(encoding);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

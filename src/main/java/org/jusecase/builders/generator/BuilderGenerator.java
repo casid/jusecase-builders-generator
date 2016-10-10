@@ -32,9 +32,9 @@ public class BuilderGenerator {
 
     private String getBuilderClassName() {
         if (entityClass.getEnclosingClass() == null) {
-            return entityClass.getSimpleName() + "Builder";
+            return entityClass.getSimpleName() + "BuilderMethods";
         } else {
-            return entityClass.getEnclosingClass().getSimpleName() + entityClass.getSimpleName() + "Builder";
+            return entityClass.getEnclosingClass().getSimpleName() + entityClass.getSimpleName() + "BuilderMethods";
         }
     }
 
@@ -78,7 +78,7 @@ public class BuilderGenerator {
 
     private TemplateProcessor getMethodTemplateProcessor(Property property) {
         if (property.isSetter) {
-            return new TemplateProcessor(Templates.BUILDER_METHOD);
+            return new TemplateProcessor(Templates.BUILDER_METHOD_SETTER);
         } else {
             return new TemplateProcessor(Templates.BUILDER_METHOD_DIRECT);
         }

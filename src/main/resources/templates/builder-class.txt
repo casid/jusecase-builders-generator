@@ -1,6 +1,8 @@
 package ${package};
 
+import org.jusecase.builders.Builder;
+
 @javax.annotation.Generated(value="jusecase-builders-generator")
-public class ${builder-class} implements org.jusecase.builders.Builder<${entity-class}> {
+public interface ${builder-class}<T extends ${entity-class}, B extends Builder> extends Builder<T> {
 ${body}
 }

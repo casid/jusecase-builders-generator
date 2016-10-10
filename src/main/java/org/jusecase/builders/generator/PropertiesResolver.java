@@ -15,8 +15,14 @@ public class PropertiesResolver {
 
     public List<Property> resolveProperties() {
         List<Property> properties = new ArrayList<>();
+        addPublicFields(entityClass, properties);
+        addSetterMethods(entityClass, properties);
+        properties.sort((o1, o2) -> o1.name.compareTo(o2.name));
+        return properties;
+    }
 
-        for (Field field : entityClass.getDeclaredFields()) {
+    private void addPublicFields(Class<?> clazz, List<Property> properties) {
+        for (Field field : clazz.getDeclaredFields()) {
             if (isSuitableField(field)) {
                 Property property = new Property();
                 property.name = field.getName();
@@ -25,13 +31,10 @@ public class PropertiesResolver {
                 properties.add(property);
             }
         }
-
-        addSetterMethods(properties);
-        return properties;
     }
 
-    private void addSetterMethods(List<Property> properties) {
-        for (Method method : entityClass.getDeclaredMethods()) {
+    private void addSetterMethods(Class<?> clazz, List<Property> properties) {
+        for (Method method : clazz.getDeclaredMethods()) {
             if(isSuitableMethod(method)) {
                 Property property = new Property();
                 property.name = method.getName().substring(3);

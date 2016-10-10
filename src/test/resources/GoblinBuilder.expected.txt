@@ -1,0 +1,18 @@
+package org.jusecase.builders.generator.entities;
+
+import org.jusecase.builders.Builder;
+
+@javax.annotation.Generated(value="jusecase-builders-generator")
+public interface GoblinBuilderMethods<T extends Goblin, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withGold(int value) {
+        getEntity().setGold(value);
+        return (B)this;
+    }
+}
