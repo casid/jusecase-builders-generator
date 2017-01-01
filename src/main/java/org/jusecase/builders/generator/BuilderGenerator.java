@@ -11,26 +11,30 @@ import java.util.List;
 
 public class BuilderGenerator {
     private final Class<?> entityClass;
-    private final BufferedWriter writer;
     private final String lineSeparator;
+    private final Charset charset;
+    private final List<Property> properties;
 
-    public BuilderGenerator(Class<?> entityClass, OutputStream os, String encoding, String lineSeparator) {
+    public BuilderGenerator(Class<?> entityClass, String encoding, String lineSeparator) {
         this.entityClass = entityClass;
-        this.writer = new BufferedWriter(new OutputStreamWriter(os, Charset.forName(encoding)));
         this.lineSeparator = lineSeparator;
+        this.charset = Charset.forName(encoding);
+        this.properties = new PropertiesResolver(entityClass).resolveProperties();
     }
 
-    public void generate() throws IOException {
-        TemplateProcessor classProcessor = new TemplateProcessor(Templates.BUILDER_CLASS);
-        classProcessor.setProperty("package", entityClass.getPackage().getName());
-        classProcessor.setProperty("builder-class", getBuilderClassName());
-        classProcessor.setProperty("entity-class", getEntityClassName());
-        classProcessor.setProperty("body", generateBody(classProcessor));
-        writer.write(classProcessor.process());
-        writer.flush();
+    public void generate(OutputStream os) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, charset))) {
+            TemplateProcessor classProcessor = new TemplateProcessor(Templates.BUILDER_CLASS);
+            classProcessor.setProperty("package", entityClass.getPackage().getName());
+            classProcessor.setProperty("builder-class", getBuilderClassName());
+            classProcessor.setProperty("entity-class", getEntityClassName());
+            classProcessor.setProperty("body", generateBody(classProcessor));
+            writer.write(classProcessor.process());
+            writer.flush();
+        }
     }
 
-    private String getBuilderClassName() {
+    public String getBuilderClassName() {
         if (entityClass.getEnclosingClass() == null) {
             return entityClass.getSimpleName() + "BuilderMethods";
         } else {
@@ -54,7 +58,6 @@ public class BuilderGenerator {
     }
 
     private void addMethods(TemplateProcessor classProcessor, StringBuilder body) {
-        List<Property> properties = new PropertiesResolver(entityClass).resolveProperties();
         int remainingProperties = properties.size();
 
         for (Property property : properties) {
@@ -90,5 +93,9 @@ public class BuilderGenerator {
         body.append(constructionProcessor.process());
         body.append(lineSeparator);
         body.append(lineSeparator);
+    }
+
+    public boolean isBuildable() {
+        return !properties.isEmpty();
     }
 }

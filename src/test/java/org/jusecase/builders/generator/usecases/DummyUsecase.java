@@ -10,12 +10,19 @@ public class DummyUsecase implements Usecase<DummyUsecase.Request, DummyUsecase.
         return null;
     }
 
+    @SuppressWarnings("unused")
     public static class Request {
         public String dummyEmail;
         public String dummyPassword;
     }
 
+    @SuppressWarnings("unused")
     public static class Response {
+        public String dummyMessage;
+    }
 
+    @SuppressWarnings("unused")
+    public class NonStaticNestedClassWillBeIgnored {
+        public String dummyField;
     }
 }

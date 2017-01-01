@@ -63,8 +63,8 @@ public class BuilderGeneratorTest {
 
     private void whenBuilderIsGenerated() {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            BuilderGenerator generator = new BuilderGenerator(entityClass, os, encoding, lineSeparator);
-            generator.generate();
+            BuilderGenerator generator = new BuilderGenerator(entityClass, encoding, lineSeparator);
+            generator.generate(os);
             generatedOutput = os.toString(encoding);
         } catch (IOException e) {
             throw new RuntimeException(e);
