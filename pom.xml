@@ -99,6 +99,7 @@
 
     <build>
         <plugins>
+            <!-- Maven plugin generation -->
             <plugin>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.3</version>
@@ -107,6 +108,26 @@
                         <id>mojo-descriptor</id>
                         <goals>
                             <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Code coverage -->
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.1.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.5.201505241946</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                 </executions>
