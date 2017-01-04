@@ -3,6 +3,7 @@ package org.jusecase.builders.generator;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.jusecase.builders.generator.entities.*;
+import org.jusecase.builders.generator.oddities.EntityWithNestedEnum;
 import org.jusecase.builders.generator.usecases.DummyUsecase;
 
 import java.io.ByteArrayOutputStream;

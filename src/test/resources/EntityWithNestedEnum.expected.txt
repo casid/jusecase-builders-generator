@@ -1,4 +1,4 @@
-package org.jusecase.builders.generator.entities;
+package org.jusecase.builders.generator.oddities;
 
 import org.jusecase.builders.Builder;
 
@@ -11,7 +11,7 @@ public interface EntityWithNestedEnumBuilderMethods<T extends EntityWithNestedEn
 
     T getEntity();
 
-    default B withValue(org.jusecase.builders.generator.entities.EntityWithNestedEnum.NestedEnum value) {
+    default B withValue(org.jusecase.builders.generator.oddities.EntityWithNestedEnum.NestedEnum value) {
         getEntity().setValue(value);
         return (B)this;
     }

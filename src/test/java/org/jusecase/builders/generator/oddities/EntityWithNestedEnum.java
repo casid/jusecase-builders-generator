@@ -1,4 +1,4 @@
-package org.jusecase.builders.generator.entities;
+package org.jusecase.builders.generator.oddities;
 
 @SuppressWarnings("unused")
 public class EntityWithNestedEnum {
