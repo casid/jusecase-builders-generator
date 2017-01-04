@@ -17,8 +17,16 @@ public class PropertiesResolver {
         List<Property> properties = new ArrayList<>();
         addPublicFields(entityClass, properties);
         addSetterMethods(entityClass, properties);
-        properties.sort((o1, o2) -> o1.name.compareTo(o2.name));
+        properties.sort(this::sortProperties);
         return properties;
+    }
+
+    private int sortProperties(Property o1, Property o2) {
+        int result = o1.name.compareTo(o2.name);
+        if (result == 0) {
+            result = o1.type.getName().compareTo(o2.type.getName());
+        }
+        return result;
     }
 
     private void addPublicFields(Class<?> clazz, List<Property> properties) {
