@@ -61,8 +61,9 @@ public class BuildersGeneratorTest {
 
         whenBuildersAreGenerated();
 
-        thenNumberOfGeneratedBuildersIs(5);
+        thenNumberOfGeneratedBuildersIs(6);
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/CardBuilderMethods.java");
+        thenBuilderIsGenerated("org/jusecase/builders/generator/entities/EntityWithNestedEnumBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GameEntityBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GoblinBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/UserBuilderMethods.java");

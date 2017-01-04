@@ -64,10 +64,14 @@ public class PropertiesResolver {
 
         public String getTypeString() {
             if (type.getPackage() == null || "java.lang".equals(type.getPackage().getName())) {
-                return type.getSimpleName();
+                return correctNestedTypeName(type.getSimpleName());
             } else {
-                return type.getName();
+                return correctNestedTypeName(type.getName());
             }
+        }
+
+        private String correctNestedTypeName(String typeName) {
+            return typeName.replace('$', '.');
         }
 
         public String nameStartingWithUppercase() {

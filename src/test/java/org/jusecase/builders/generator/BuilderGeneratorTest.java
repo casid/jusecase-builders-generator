@@ -2,10 +2,7 @@ package org.jusecase.builders.generator;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.jusecase.builders.generator.entities.Card;
-import org.jusecase.builders.generator.entities.Goblin;
-import org.jusecase.builders.generator.entities.User;
-import org.jusecase.builders.generator.entities.Vector;
+import org.jusecase.builders.generator.entities.*;
 import org.jusecase.builders.generator.usecases.DummyUsecase;
 
 import java.io.ByteArrayOutputStream;
@@ -55,6 +52,13 @@ public class BuilderGeneratorTest {
         givenEntityClass(Card.class);
         whenBuilderIsGenerated();
         thenGeneratedBuilderIsEqualTo("CardBuilder.expected.txt");
+    }
+
+    @Test
+    public void entityWithNestedEnum() {
+        givenEntityClass(EntityWithNestedEnum.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithNestedEnum.expected.txt");
     }
 
     private void givenEntityClass(Class<?> entityClass) {
