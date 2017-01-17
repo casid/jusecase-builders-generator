@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.jusecase.builders.generator.entities.*;
 import org.jusecase.builders.generator.oddities.EntityWithNestedEnum;
 import org.jusecase.builders.generator.oddities.EntityWithOverloadedMethods;
+import org.jusecase.builders.generator.oddities.EntityWithParentClass;
 import org.jusecase.builders.generator.usecases.DummyUsecase;
 
 import java.io.ByteArrayOutputStream;
@@ -68,6 +69,13 @@ public class BuilderGeneratorTest {
         givenEntityClass(EntityWithOverloadedMethods.class);
         whenBuilderIsGenerated();
         thenGeneratedBuilderIsEqualTo("EntityWithOverloadedMethods.expected.txt");
+    }
+
+    @Test
+    public void entityWithParentClass() {
+        givenEntityClass(EntityWithParentClass.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithParentClass.expected.txt");
     }
 
     private void givenEntityClass(Class<?> entityClass) {

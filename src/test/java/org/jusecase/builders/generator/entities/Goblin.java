@@ -1,7 +1,7 @@
 package org.jusecase.builders.generator.entities;
 
-@SuppressWarnings("unchecked")
-public class Goblin extends GameEntity {
+@SuppressWarnings("unused")
+public class Goblin {
     private int gold;
 
     public int getGold() {

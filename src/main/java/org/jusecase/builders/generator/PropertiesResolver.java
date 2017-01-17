@@ -15,8 +15,7 @@ public class PropertiesResolver {
 
     public List<Property> resolveProperties() {
         List<Property> properties = new ArrayList<>();
-        addPublicFields(entityClass, properties);
-        addSetterMethods(entityClass, properties);
+        addProperties(entityClass, properties);
         properties.sort(this::sortProperties);
         return properties;
     }
@@ -27,6 +26,15 @@ public class PropertiesResolver {
             result = o1.type.getName().compareTo(o2.type.getName());
         }
         return result;
+    }
+
+    private void addProperties(Class<?> clazz, List<Property> properties) {
+        if (clazz != Object.class) {
+            addPublicFields(clazz, properties);
+            addSetterMethods(clazz, properties);
+
+            addProperties(clazz.getSuperclass(), properties);
+        }
     }
 
     private void addPublicFields(Class<?> clazz, List<Property> properties) {
