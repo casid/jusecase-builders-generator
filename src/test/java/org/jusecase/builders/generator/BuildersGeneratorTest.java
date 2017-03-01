@@ -23,6 +23,7 @@ public class BuildersGeneratorTest {
     String[] packages;
     String[] classes;
     boolean nestedClasses;
+    String lineSeparator;
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -32,6 +33,7 @@ public class BuildersGeneratorTest {
     public void setUp() throws Exception {
         givenTargetDirectory("");
         nestedClasses = true;
+        lineSeparator = "\n";
     }
 
     @Test
@@ -167,7 +169,7 @@ public class BuildersGeneratorTest {
     }
 
     private void whenBuildersAreGenerated() {
-        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, nestedClasses);
+        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, nestedClasses, lineSeparator);
         generator.generate();
     }
 }

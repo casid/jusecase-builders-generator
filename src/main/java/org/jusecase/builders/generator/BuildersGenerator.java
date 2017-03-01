@@ -16,13 +16,15 @@ public class BuildersGenerator {
     private final String[] packages;
     private final String[] classes;
     private final boolean nestedClasses;
+    private final String lineSeparator;
 
-    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, boolean nestedClasses) {
+    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, boolean nestedClasses, String lineSeparator) {
         this.classLoader = classLoader;
         this.targetDirectory = targetDirectory;
         this.packages = packages;
         this.classes = classes;
         this.nestedClasses = nestedClasses;
+        this.lineSeparator = lineSeparator;
     }
 
     public void generate() {
@@ -38,7 +40,7 @@ public class BuildersGenerator {
     }
 
     private void generateBuilder(Class<?> clazz) {
-        BuilderGenerator generator = new BuilderGenerator(clazz, "UTF-8", "\n");
+        BuilderGenerator generator = new BuilderGenerator(clazz, "UTF-8", lineSeparator);
         if (!generator.isBuildable()) {
             return;
         }

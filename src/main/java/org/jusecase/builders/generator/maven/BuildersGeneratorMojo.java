@@ -51,6 +51,12 @@ public class BuildersGeneratorMojo extends AbstractMojo {
     @Parameter(property = "builders.nestedClasses")
     public boolean nestedClasses = true;
 
+    /**
+     * Line separator for generated builders. If not set, system default line separator is used.
+     */
+    @Parameter(property = "builders.lineSeparator")
+    public String lineSeparator = System.lineSeparator();
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
@@ -61,7 +67,8 @@ public class BuildersGeneratorMojo extends AbstractMojo {
                     new File(targetDirectory),
                     packages,
                     classes,
-                    nestedClasses);
+                    nestedClasses,
+                    lineSeparator);
             generator.generate();
 
             getLog().info("Builder interfaces generated at " + targetDirectory);
