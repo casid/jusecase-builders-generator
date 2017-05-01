@@ -1,0 +1,23 @@
+package org.jusecase.builders.generator.entities;
+
+import org.jusecase.builders.Builder;
+
+@javax.annotation.Generated(value="jusecase-builders-generator")
+public interface UserBuilderMethods<T extends User, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withCreationDate(java.util.Date value) {
+        getEntity().setCreationDate(value);
+        return (B)this;
+    }
+
+    default B withName(String value) {
+        getEntity().setName(value);
+        return (B)this;
+    }
+}

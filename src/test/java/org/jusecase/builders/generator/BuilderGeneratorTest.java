@@ -30,6 +30,15 @@ public class BuilderGeneratorTest {
     }
 
     @Test
+    public void user_lineSeparator() {
+        givenEntityClass(User.class);
+        lineSeparator = "\r\n";
+
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("UserBuilder-lineSeparator.expected.txt");
+    }
+
+    @Test
     public void vector() {
         givenEntityClass(Vector.class);
         whenBuilderIsGenerated();

@@ -5,10 +5,12 @@ import java.util.Map;
 
 public class TemplateProcessor {
     private final Template template;
+    private final String lineSeparator;
     private final Map<String, String> properties;
 
-    public TemplateProcessor(Template template) {
+    public TemplateProcessor(Template template, String lineSeparator) {
         this.template = template;
+        this.lineSeparator = lineSeparator;
         this.properties = new HashMap<>();
     }
 
@@ -18,6 +20,10 @@ public class TemplateProcessor {
 
     public String process() {
         String content = template.getContent();
+        if (!"\n".equals(lineSeparator)) {
+            content = content.replace("\n", lineSeparator);
+        }
+
         for (Map.Entry<String, String> property : properties.entrySet()) {
            content = content.replace("${" + property.getKey() + "}", property.getValue());
         }

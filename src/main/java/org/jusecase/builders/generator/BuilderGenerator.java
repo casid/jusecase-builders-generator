@@ -24,7 +24,7 @@ public class BuilderGenerator {
 
     public void generate(OutputStream os) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, charset))) {
-            TemplateProcessor classProcessor = new TemplateProcessor(Templates.BUILDER_CLASS);
+            TemplateProcessor classProcessor = new TemplateProcessor(Templates.BUILDER_CLASS, lineSeparator);
             classProcessor.setProperty("package", entityClass.getPackage().getName());
             classProcessor.setProperty("builder-class", getBuilderClassName());
             classProcessor.setProperty("entity-class", getEntityClassName());
@@ -81,14 +81,14 @@ public class BuilderGenerator {
 
     private TemplateProcessor getMethodTemplateProcessor(Property property) {
         if (property.isSetter) {
-            return new TemplateProcessor(Templates.BUILDER_METHOD_SETTER);
+            return new TemplateProcessor(Templates.BUILDER_METHOD_SETTER, lineSeparator);
         } else {
-            return new TemplateProcessor(Templates.BUILDER_METHOD_DIRECT);
+            return new TemplateProcessor(Templates.BUILDER_METHOD_DIRECT, lineSeparator);
         }
     }
 
     private void addConstruction(TemplateProcessor classProcessor, StringBuilder body) {
-        TemplateProcessor constructionProcessor = new TemplateProcessor(Templates.BUILDER_CONSTRUCTION);
+        TemplateProcessor constructionProcessor = new TemplateProcessor(Templates.BUILDER_CONSTRUCTION, lineSeparator);
         constructionProcessor.setProperties(classProcessor);
         body.append(constructionProcessor.process());
         body.append(lineSeparator);
