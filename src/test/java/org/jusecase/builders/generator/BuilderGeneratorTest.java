@@ -111,7 +111,7 @@ public class BuilderGeneratorTest {
 
     private void thenGeneratedBuilderIsEqualTo(String fileName) {
         try {
-            assertThat(generatedOutput).isEqualToNormalizingNewlines(IOUtils.toString(an(inputStream().withResource(fileName))));
+            assertThat(generatedOutput).isEqualTo(IOUtils.toString(an(inputStream().withResource(fileName))));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
