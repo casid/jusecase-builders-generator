@@ -3,8 +3,7 @@ package org.jusecase.builders.generator;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class PropertiesResolver {
     private final Class<?> entityClass;
@@ -13,22 +12,13 @@ public class PropertiesResolver {
         this.entityClass = entityClass;
     }
 
-    public List<Property> resolveProperties() {
-        List<Property> properties = new ArrayList<>();
+    public Collection<Property> resolveProperties() {
+        SortedSet<Property> properties = new TreeSet<>();
         addProperties(entityClass, properties);
-        properties.sort(this::sortProperties);
         return properties;
     }
 
-    private int sortProperties(Property o1, Property o2) {
-        int result = o1.name.compareTo(o2.name);
-        if (result == 0) {
-            result = o1.type.getName().compareTo(o2.type.getName());
-        }
-        return result;
-    }
-
-    private void addProperties(Class<?> clazz, List<Property> properties) {
+    private void addProperties(Class<?> clazz, Collection<Property> properties) {
         if (clazz != Object.class) {
             addPublicFields(clazz, properties);
             addSetterMethods(clazz, properties);
@@ -37,7 +27,7 @@ public class PropertiesResolver {
         }
     }
 
-    private void addPublicFields(Class<?> clazz, List<Property> properties) {
+    private void addPublicFields(Class<?> clazz, Collection<Property> properties) {
         for (Field field : clazz.getDeclaredFields()) {
             if (isSuitableField(field)) {
                 Property property = new Property();
@@ -49,7 +39,7 @@ public class PropertiesResolver {
         }
     }
 
-    private void addSetterMethods(Class<?> clazz, List<Property> properties) {
+    private void addSetterMethods(Class<?> clazz, Collection<Property> properties) {
         for (Method method : clazz.getDeclaredMethods()) {
             if(isSuitableMethod(method)) {
                 Property property = new Property();
@@ -73,7 +63,7 @@ public class PropertiesResolver {
                 method.getName().matches("^set[A-Z].*");
     }
 
-    public static class Property {
+    public static class Property implements Comparable<Property> {
         public String name;
         public Class<?> type;
         public boolean isSetter;
@@ -84,6 +74,32 @@ public class PropertiesResolver {
             } else {
                 return correctNestedTypeName(type.getName());
             }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Property property = (Property) o;
+
+            return name.equals(property.name) && type.equals(property.type);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name.hashCode();
+            result = 31 * result + type.hashCode();
+            return result;
+        }
+
+        @Override
+        public int compareTo(Property o) {
+            int result = name.compareTo(o.name);
+            if (result == 0) {
+                result = type.getName().compareTo(o.type.getName());
+            }
+            return result;
         }
 
         private String correctNestedTypeName(String typeName) {

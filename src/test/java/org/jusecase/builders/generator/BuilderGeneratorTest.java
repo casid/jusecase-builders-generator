@@ -3,6 +3,7 @@ package org.jusecase.builders.generator;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.jusecase.builders.generator.entities.*;
+import org.jusecase.builders.generator.oddities.EntityOverridesParentClassMethod;
 import org.jusecase.builders.generator.oddities.EntityWithNestedEnum;
 import org.jusecase.builders.generator.oddities.EntityWithOverloadedMethods;
 import org.jusecase.builders.generator.oddities.EntityWithParentClass;
@@ -87,6 +88,13 @@ public class BuilderGeneratorTest {
         thenGeneratedBuilderIsEqualTo("EntityWithParentClass.expected.txt");
     }
 
+    @Test
+    public void entityOverridesParentClassMethod() {
+        givenEntityClass(EntityOverridesParentClassMethod.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityOverridesParentClassMethod.expected.txt");
+    }
+
     private void givenEntityClass(Class<?> entityClass) {
         this.entityClass = entityClass;
     }
@@ -103,7 +111,7 @@ public class BuilderGeneratorTest {
 
     private void thenGeneratedBuilderIsEqualTo(String fileName) {
         try {
-            assertThat(generatedOutput).isEqualTo(IOUtils.toString(an(inputStream().withResource(fileName))));
+            assertThat(generatedOutput).isEqualToNormalizingNewlines(IOUtils.toString(an(inputStream().withResource(fileName))));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
