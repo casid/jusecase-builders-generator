@@ -19,7 +19,7 @@ public class PropertiesResolver {
     }
 
     private void addProperties(Class<?> clazz, Collection<Property> properties) {
-        if (clazz != Object.class) {
+        if (clazz != null && clazz != Object.class) {
             addPublicFields(clazz, properties);
             addSetterMethods(clazz, properties);
 
@@ -41,7 +41,7 @@ public class PropertiesResolver {
 
     private void addSetterMethods(Class<?> clazz, Collection<Property> properties) {
         for (Method method : clazz.getDeclaredMethods()) {
-            if(isSuitableMethod(method)) {
+            if (isSuitableMethod(method)) {
                 Property property = new Property();
                 property.name = method.getName().substring(3);
                 property.type = method.getParameterTypes()[0];

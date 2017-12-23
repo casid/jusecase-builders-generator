@@ -6,7 +6,7 @@
 
     <groupId>org.jusecase</groupId>
     <artifactId>builders-generator</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.3</version>
     <packaging>maven-plugin</packaging>
 
     <name>JUsecase Builders Generator</name>
