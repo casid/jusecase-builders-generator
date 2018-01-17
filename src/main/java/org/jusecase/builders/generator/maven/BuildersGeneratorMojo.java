@@ -53,9 +53,10 @@ public class BuildersGeneratorMojo extends AbstractMojo {
 
     /**
      * Line separator for generated builders. If not set, system default line separator is used.
+     * @see LineSeparator
      */
     @Parameter(property = "builders.lineSeparator")
-    public String lineSeparator = System.lineSeparator();
+    public String lineSeparator = LineSeparator.System.toString();
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -68,7 +69,7 @@ public class BuildersGeneratorMojo extends AbstractMojo {
                     packages,
                     classes,
                     nestedClasses,
-                    lineSeparator);
+                    LineSeparator.fromString(lineSeparator).value);
             generator.generate();
 
             getLog().info("Builder interfaces generated at " + targetDirectory);
