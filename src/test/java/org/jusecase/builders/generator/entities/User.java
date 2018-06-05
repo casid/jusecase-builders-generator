@@ -1,11 +1,17 @@
 package org.jusecase.builders.generator.entities;
 
-import java.util.Date;
-
 @SuppressWarnings("unused")
 public class User {
+    private long id;
     private String name;
-    private Date creationDate;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -15,11 +21,4 @@ public class User {
         this.name = name;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
 }

@@ -11,8 +11,8 @@ public interface UserBuilderMethods<T extends User, B extends Builder> extends B
 
     T getEntity();
 
-    default B withCreationDate(java.util.Date value) {
-        getEntity().setCreationDate(value);
+    default B withId(long value) {
+        getEntity().setId(value);
         return (B)this;
     }
 
