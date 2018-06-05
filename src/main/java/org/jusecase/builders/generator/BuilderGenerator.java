@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Date;
 
 public class BuilderGenerator {
     private final Class<?> entityClass;
@@ -76,7 +77,18 @@ public class BuilderGenerator {
         methodProcessor.setProperty("property-name", property.name);
         methodProcessor.setProperty("property-type", property.getTypeString());
         methodProcessor.setProperty("property-name-starting-with-uppercase", property.nameStartingWithUppercase());
+        methodProcessor.setProperty("property-value", "value");
         body.append(methodProcessor.process());
+
+        if (property.type.equals(Date.class)) {
+            body.append(lineSeparator);
+            body.append(lineSeparator);
+
+            methodProcessor.setProperties(classProcessor);
+            methodProcessor.setProperty("property-type", "String");
+            methodProcessor.setProperty("property-value", "org.jusecase.Builders.a(org.jusecase.Builders.date(value))");
+            body.append(methodProcessor.process());
+        }
     }
 
     private TemplateProcessor getMethodTemplateProcessor(Property property) {
