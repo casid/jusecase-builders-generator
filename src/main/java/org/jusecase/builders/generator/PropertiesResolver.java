@@ -53,7 +53,8 @@ public class PropertiesResolver {
 
     private boolean isSuitableField(Field field) {
         return Modifier.isPublic(field.getModifiers()) &&
-                !Modifier.isStatic(field.getModifiers());
+              !Modifier.isStatic(field.getModifiers()) &&
+              !Modifier.isFinal(field.getModifiers());
     }
 
     private boolean isSuitableMethod(Method method) {
