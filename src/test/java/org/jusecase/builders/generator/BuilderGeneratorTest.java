@@ -2,7 +2,10 @@ package org.jusecase.builders.generator;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.jusecase.builders.generator.entities.*;
+import org.jusecase.builders.generator.entities.Card;
+import org.jusecase.builders.generator.entities.Goblin;
+import org.jusecase.builders.generator.entities.User;
+import org.jusecase.builders.generator.entities.Vector;
 import org.jusecase.builders.generator.oddities.*;
 import org.jusecase.builders.generator.usecases.DummyUsecase;
 
@@ -90,13 +93,6 @@ public class BuilderGeneratorTest {
         givenEntityClass(EntityOverridesParentClassMethod.class);
         whenBuilderIsGenerated();
         thenGeneratedBuilderIsEqualTo("EntityOverridesParentClassMethod.expected.txt");
-    }
-
-    @Test
-    public void entityWithDates() {
-        givenEntityClass(EntityWithDates.class);
-        whenBuilderIsGenerated();
-        thenGeneratedBuilderIsEqualTo("EntityWithDates.expected.txt");
     }
 
     @Test
