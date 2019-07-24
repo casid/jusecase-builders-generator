@@ -71,9 +71,9 @@ public class PropertiesResolver {
 
         public String getTypeString() {
             if (type.getPackage() == null || "java.lang".equals(type.getPackage().getName())) {
-                return correctNestedTypeName(type.getSimpleName());
+                return correctTypeName(type.getSimpleName());
             } else {
-                return correctNestedTypeName(type.getName());
+                return correctTypeName(type.getName());
             }
         }
 
@@ -101,6 +101,19 @@ public class PropertiesResolver {
                 result = type.getName().compareTo(o.type.getName());
             }
             return result;
+        }
+
+        private String correctTypeName(String typeName) {
+            typeName = correctNestedTypeName(typeName);
+            typeName = correctArrayTypeName(typeName);
+            return typeName;
+        }
+
+        private String correctArrayTypeName(String typeName) {
+            if (typeName.endsWith("[]")) {
+                typeName = typeName.substring(0, typeName.length() - 2) + " ...";
+            }
+            return typeName;
         }
 
         private String correctNestedTypeName(String typeName) {

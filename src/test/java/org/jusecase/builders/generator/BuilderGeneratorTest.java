@@ -102,6 +102,13 @@ public class BuilderGeneratorTest {
         thenGeneratedBuilderIsEqualTo("EntityWithFinalFields.expected.txt");
     }
 
+    @Test
+    public void entityWithPrimitiveArrays() {
+        givenEntityClass(EntityWithPrimitiveArrays.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithPrimitiveArrays.expected.txt");
+    }
+
     private void givenEntityClass(Class<?> entityClass) {
         this.entityClass = entityClass;
     }
