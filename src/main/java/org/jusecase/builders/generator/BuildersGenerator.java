@@ -1,14 +1,17 @@
 package org.jusecase.builders.generator;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.ClassPath;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
+
 
 public class BuildersGenerator {
     private final ClassLoader classLoader;
@@ -59,28 +62,30 @@ public class BuildersGenerator {
     }
 
     private void addPackageClasses(Set<Class<?>> classes) {
-        if (packages == null) {
+        if (packages == null || packages.length == 0) {
             return;
         }
 
-        for (String packageName : packages) {
-            addPackageClasses(classes, packageName);
-        }
-    }
-
-    private void addPackageClasses(Set<Class<?>> classes, String packageName) {
         try {
-            ImmutableSet<ClassPath.ClassInfo> classesInfo = ClassPath.from(classLoader).getTopLevelClassesRecursive(packageName);
-            for (ClassPath.ClassInfo classInfo : classesInfo) {
-                Class<?> clazz = classInfo.load();
-                classes.add(clazz);
+            try (ScanResult scanResult = new ClassGraph()
+                  .acceptPackages(packages)
+                  .overrideClassLoaders(classLoader)
+                  .scan()) {
+                for ( ClassInfo classInfo : scanResult.getAllClasses() ) {
+                    if ( classInfo.isInnerClass()) {
+                        continue;
+                    }
 
-                if (nestedClasses) {
-                    addNestedClasses(classes, clazz);
+                    Class<?> clazz = classInfo.loadClass();
+                    classes.add(clazz);
+
+                    if (nestedClasses) {
+                        addNestedClasses(classes, clazz);
+                    }
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to find classes in package '" + packageName + "'", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to find classes in packages '" + Arrays.toString(packages) + "'", e);
         }
     }
 

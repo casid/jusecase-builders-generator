@@ -30,7 +30,7 @@ public class BuildersGeneratorTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         givenTargetDirectory("");
         nestedClasses = true;
         lineSeparator = "\n";
