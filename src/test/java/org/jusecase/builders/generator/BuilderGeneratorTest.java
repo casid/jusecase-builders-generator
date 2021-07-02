@@ -11,15 +11,17 @@ import org.jusecase.builders.generator.usecases.DummyUsecase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jusecase.Builders.an;
 import static org.jusecase.Builders.inputStream;
 
 public class BuilderGeneratorTest {
+    private static final String encoding = "UTF-8";
+
     private Class<?> entityClass;
     private String lineSeparator = "\n";
-    private String encoding = "UTF-8";
 
     private String generatedOutput;
 
@@ -109,6 +111,13 @@ public class BuilderGeneratorTest {
         thenGeneratedBuilderIsEqualTo("EntityWithPrimitiveArrays.expected.txt");
     }
 
+    @Test
+    public void entityWithTypedArray() {
+        givenEntityClass(EntityWithTypedArray.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithTypedArray.expected.txt");
+    }
+
     private void givenEntityClass(Class<?> entityClass) {
         this.entityClass = entityClass;
     }
@@ -125,7 +134,7 @@ public class BuilderGeneratorTest {
 
     private void thenGeneratedBuilderIsEqualTo(String fileName) {
         try {
-            assertThat(generatedOutput).isEqualTo(IOUtils.toString(an(inputStream().withResource(fileName))));
+            assertThat(generatedOutput).isEqualTo(IOUtils.toString(an(inputStream().withResource(fileName)), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

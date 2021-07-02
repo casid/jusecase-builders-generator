@@ -70,11 +70,17 @@ public class PropertiesResolver {
         public boolean isSetter;
 
         public String getTypeString() {
-            if (type.getPackage() == null || "java.lang".equals(type.getPackage().getName())) {
-                return correctTypeName(type.getSimpleName());
+            String typeName;
+
+            if (type.getName().startsWith("[L")) {
+                typeName = type.getName().substring(2, type.getName().length() - 1) + "[]";
+            } else if (type.getPackage() == null || "java.lang".equals(type.getPackage().getName())) {
+                typeName = type.getSimpleName();
             } else {
-                return correctTypeName(type.getName());
+                typeName = type.getName();
             }
+
+            return correctTypeName(typeName);
         }
 
         @Override
