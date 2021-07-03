@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,14 +17,16 @@ public class BuildersGenerator {
     private final File targetDirectory;
     private final String[] packages;
     private final String[] classes;
-    private final boolean nestedClasses;
+    private final Set<String> excludeClasses;
+    private final boolean  nestedClasses;
     private final String lineSeparator;
 
-    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, boolean nestedClasses, String lineSeparator) {
+    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, String[] excludeClasses, boolean nestedClasses, String lineSeparator) {
         this.classLoader = classLoader;
         this.targetDirectory = targetDirectory;
         this.packages = packages;
         this.classes = classes;
+        this.excludeClasses = excludeClasses == null ? Collections.emptySet() : new HashSet<>(Arrays.asList(excludeClasses));
         this.nestedClasses = nestedClasses;
         this.lineSeparator = lineSeparator;
     }
@@ -72,6 +76,10 @@ public class BuildersGenerator {
         try {
             ImmutableSet<ClassPath.ClassInfo> classesInfo = ClassPath.from(classLoader).getTopLevelClassesRecursive(packageName);
             for (ClassPath.ClassInfo classInfo : classesInfo) {
+                if (excludeClasses.contains(classInfo.getName())) {
+                    continue;
+                }
+
                 Class<?> clazz = classInfo.load();
                 classes.add(clazz);
 

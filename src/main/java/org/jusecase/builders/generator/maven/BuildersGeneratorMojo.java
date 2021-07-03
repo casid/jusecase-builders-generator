@@ -46,6 +46,12 @@ public class BuildersGeneratorMojo extends AbstractMojo {
     public String[] classes;
 
     /**
+     * List of classes no builders should be generated for.
+     */
+    @Parameter(property = "builders.excludeClasses")
+    public String[] excludeClasses;
+
+    /**
      * If builders for nested classes should be generated.
      */
     @Parameter(property = "builders.nestedClasses")
@@ -68,6 +74,7 @@ public class BuildersGeneratorMojo extends AbstractMojo {
                     new File(targetDirectory),
                     packages,
                     classes,
+                    excludeClasses,
                     nestedClasses,
                     LineSeparator.fromString(lineSeparator).value);
             generator.generate();

@@ -22,12 +22,12 @@ public class BuildersGeneratorTest {
     File targetDirectory;
     String[] packages;
     String[] classes;
+    String[] excludeClasses;
     boolean nestedClasses;
     String lineSeparator;
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 
     @Before
     public void setUp() {
@@ -69,6 +69,22 @@ public class BuildersGeneratorTest {
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GoblinBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/UserBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/VectorBuilderMethods.java");
+    }
+
+    @Test
+    public void entitiesPackage_excludeClasses() {
+        givenPackages("org.jusecase.builders.generator.entities");
+        givenExcludeClasses(
+              "org.jusecase.builders.generator.entities.Card",
+              "org.jusecase.builders.generator.entities.Vector"
+        );
+
+        whenBuildersAreGenerated();
+
+        thenNumberOfGeneratedBuildersIs(3);
+        thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GameEntityBuilderMethods.java");
+        thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GoblinBuilderMethods.java");
+        thenBuilderIsGenerated("org/jusecase/builders/generator/entities/UserBuilderMethods.java");
     }
 
     @Test
@@ -168,8 +184,12 @@ public class BuildersGeneratorTest {
         this.classes = classes;
     }
 
+    private void givenExcludeClasses(String ... classes) {
+        this.excludeClasses = classes;
+    }
+
     private void whenBuildersAreGenerated() {
-        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, nestedClasses, lineSeparator);
+        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, excludeClasses, nestedClasses, lineSeparator);
         generator.generate();
     }
 }
