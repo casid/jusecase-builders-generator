@@ -3,6 +3,7 @@ package org.jusecase.builders.generator;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class PropertiesResolver {
@@ -65,22 +66,38 @@ public class PropertiesResolver {
     }
 
     public static class Property implements Comparable<Property> {
-        public String name;
-        public Class<?> type;
+        public String  name;
+        public Type    type;
         public boolean isSetter;
 
         public String getTypeString() {
             String typeName;
 
-            if (type.getName().startsWith("[L")) {
-                typeName = type.getName().substring(2, type.getName().length() - 1) + "[]";
-            } else if (type.getPackage() == null || "java.lang".equals(type.getPackage().getName())) {
-                typeName = type.getSimpleName();
+            if (isArray(type)) {
+              typeName = type.getTypeName();
+            } else if ( isJavaLangType(type) ) {
+                typeName = ((Class<?>) type).getSimpleName();
             } else {
-                typeName = type.getName();
+                typeName = type.getTypeName();
             }
 
             return correctTypeName(typeName);
+        }
+
+        private static boolean isJavaLangType(Type type) {
+            if (type instanceof Class<?>) {
+                Class<?> clazz = (Class<?>)type;
+                 return clazz.getPackage() == null || "java.lang".equals(clazz.getPackage().getName());
+            }
+            return false;
+        }
+
+        private static boolean isArray( Type type ) {
+            if (type instanceof Class<?>) {
+                Class<?> clazz = (Class<?>)type;
+                return clazz.isArray();
+            }
+            return false;
         }
 
         @Override
@@ -104,7 +121,7 @@ public class PropertiesResolver {
         public int compareTo(Property o) {
             int result = name.compareTo(o.name);
             if (result == 0) {
-                result = type.getName().compareTo(o.type.getName());
+                result = type.getTypeName().compareTo(o.type.getTypeName());
             }
             return result;
         }
