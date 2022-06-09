@@ -71,17 +71,28 @@ public class PropertiesResolver {
         public boolean isSetter;
 
         public String getTypeString() {
-            String typeName;
+            return printType(type);
+        }
 
+        private String printType(Type type) {
             if (isArray(type)) {
-              typeName = type.getTypeName();
-            } else if ( isJavaLangType(type) ) {
-                typeName = ((Class<?>) type).getSimpleName();
+                Type elementType = getArrayElementType(type);
+                return printType(elementType) + " ...";
+            } else if (isJavaLangType(type)) {
+                return ((Class<?>) type).getSimpleName();
+            } else if (isClass(type)) {
+                return ((Class<?>) type).getCanonicalName();
             } else {
-                typeName = type.getTypeName();
+                return type.getTypeName();
             }
+        }
 
-            return correctTypeName(typeName);
+        private Type getArrayElementType(Type type) {
+            return ((Class<?>) type).getComponentType();
+        }
+
+        private static boolean isClass(Type type) {
+            return type instanceof Class<?>;
         }
 
         private static boolean isJavaLangType(Type type) {
@@ -126,22 +137,6 @@ public class PropertiesResolver {
             return result;
         }
 
-        private String correctTypeName(String typeName) {
-            typeName = correctNestedTypeName(typeName);
-            typeName = correctArrayTypeName(typeName);
-            return typeName;
-        }
-
-        private String correctArrayTypeName(String typeName) {
-            if (typeName.endsWith("[]")) {
-                typeName = typeName.substring(0, typeName.length() - 2) + " ...";
-            }
-            return typeName;
-        }
-
-        private String correctNestedTypeName(String typeName) {
-            return typeName.replace('$', '.');
-        }
 
         public String nameStartingWithUppercase() {
             return ("" + name.charAt(0)).toUpperCase() +  name.substring(1);
