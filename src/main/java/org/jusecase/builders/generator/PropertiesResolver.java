@@ -73,18 +73,26 @@ public class PropertiesResolver {
         public boolean isSetter;
 
         public String getTypeString() {
-            return printType(type);
+            return printType(type, true);
         }
 
         private String printType(Type type) {
-            if (isParametrizedType(type)) {
-           ParameterizedType parameterizedType = (ParameterizedType)type;
-           String params = Arrays.stream(parameterizedType.getActualTypeArguments()).map(this::printType).collect(Collectors.joining(","));
-           return printType(parameterizedType.getRawType()) + "<"  + params + ">";
+            return printType(type, false);
+      }
+
+      private String printType( Type type, boolean unwrapArrayToVararg ) {
+         if ( isParametrizedType(type) ) {
+            ParameterizedType parameterizedType = (ParameterizedType)type;
+            String params = Arrays.stream(parameterizedType.getActualTypeArguments()).map(this::printType).collect(Collectors.joining(","));
+            return printType(parameterizedType.getRawType()) + "<" + params + ">";
          }
          if (isArray(type)) {
                 Type elementType = getArrayElementType(type);
-                return printType(elementType) + " ...";
+                if (unwrapArrayToVararg) {
+               return printType(elementType) + " ...";
+            } else {
+               return printType(elementType) + "[]";
+            }
             } else if (isJavaLangType(type)) {
                 return ((Class<?>) type).getSimpleName();
             } else if (isClass(type)) {
