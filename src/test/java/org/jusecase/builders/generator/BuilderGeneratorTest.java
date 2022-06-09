@@ -118,7 +118,22 @@ public class BuilderGeneratorTest {
         thenGeneratedBuilderIsEqualTo("EntityWithTypedArray.expected.txt");
     }
 
-    private void givenEntityClass(Class<?> entityClass) {
+   @Test
+   public void entityWithTypedArrayList() {
+      givenEntityClass(EntityWithTypedArrayList.class);
+      whenBuilderIsGenerated();
+      thenGeneratedBuilderIsEqualTo("EntityWithTypedArrayList.expected.txt");
+   }
+
+   @Test
+   public void entityWithTypedList() {
+      givenEntityClass(EntityWithTypedList.class);
+      whenBuilderIsGenerated();
+      thenGeneratedBuilderIsEqualTo("EntityWithTypedList.expected.txt");
+   }
+
+
+   private void givenEntityClass(Class<?> entityClass) {
         this.entityClass = entityClass;
     }
 

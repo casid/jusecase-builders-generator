@@ -3,8 +3,10 @@ package org.jusecase.builders.generator;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PropertiesResolver {
     private final Class<?> entityClass;
@@ -33,7 +35,7 @@ public class PropertiesResolver {
             if (isSuitableField(field)) {
                 Property property = new Property();
                 property.name = field.getName();
-                property.type = field.getType();
+                property.type = field.getGenericType();
                 property.isSetter = false;
                 properties.add(property);
             }
@@ -45,7 +47,7 @@ public class PropertiesResolver {
             if (isSuitableMethod(method)) {
                 Property property = new Property();
                 property.name = method.getName().substring(3);
-                property.type = method.getParameterTypes()[0];
+                property.type = method.getGenericParameterTypes()[0];
                 property.isSetter = true;
                 properties.add(property);
             }
@@ -75,7 +77,12 @@ public class PropertiesResolver {
         }
 
         private String printType(Type type) {
-            if (isArray(type)) {
+            if (isParametrizedType(type)) {
+           ParameterizedType parameterizedType = (ParameterizedType)type;
+           String params = Arrays.stream(parameterizedType.getActualTypeArguments()).map(this::printType).collect(Collectors.joining(","));
+           return printType(parameterizedType.getRawType()) + "<"  + params + ">";
+         }
+         if (isArray(type)) {
                 Type elementType = getArrayElementType(type);
                 return printType(elementType) + " ...";
             } else if (isJavaLangType(type)) {
@@ -87,7 +94,9 @@ public class PropertiesResolver {
             }
         }
 
-        private Type getArrayElementType(Type type) {
+        private boolean isParametrizedType( Type type ) {
+         return type instanceof ParameterizedType;
+      }private Type getArrayElementType(Type type) {
             return ((Class<?>) type).getComponentType();
         }
 
