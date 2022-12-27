@@ -7,10 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class BuildersGenerator {
     private final ClassLoader classLoader;
@@ -18,10 +15,11 @@ public class BuildersGenerator {
     private final String[] packages;
     private final String[] classes;
     private final Set<String> excludeClasses;
+    private final List<Class<?>> baseClasses;
     private final boolean  nestedClasses;
     private final String lineSeparator;
 
-    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, String[] excludeClasses, boolean nestedClasses, String lineSeparator) {
+    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, String[] excludeClasses, String[] baseClasses, boolean nestedClasses, String lineSeparator) {
         this.classLoader = classLoader;
         this.targetDirectory = targetDirectory;
         this.packages = packages;
@@ -29,6 +27,7 @@ public class BuildersGenerator {
         this.excludeClasses = excludeClasses == null ? Collections.emptySet() : new HashSet<>(Arrays.asList(excludeClasses));
         this.nestedClasses = nestedClasses;
         this.lineSeparator = lineSeparator;
+        this.baseClasses = loadBaseClasses(classLoader, baseClasses);
     }
 
     public void generate() {
@@ -81,6 +80,11 @@ public class BuildersGenerator {
                 }
 
                 Class<?> clazz = classInfo.load();
+
+                if (isWrongBaseClass(clazz)) {
+                    continue;
+                }
+
                 classes.add(clazz);
 
                 if (nestedClasses) {
@@ -121,5 +125,38 @@ public class BuildersGenerator {
                 classes.add(nestedClass);
             }
         }
+    }
+
+    private List<Class<?>> loadBaseClasses(ClassLoader classLoader, String[] baseClasses) {
+        if (baseClasses == null || baseClasses.length == 0) {
+            return Collections.emptyList();
+        }
+
+        List<Class<?>> result = new ArrayList<>();
+
+        for (String baseClassName : baseClasses) {
+            try {
+                Class<?> baseClass = classLoader.loadClass(baseClassName);
+                result.add(baseClass);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Failed to load base class " + baseClassName, e);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean isWrongBaseClass(Class<?> clazz) {
+        if (baseClasses.isEmpty()) {
+            return false;
+        }
+
+        for (Class<?> baseClass : baseClasses) {
+            if (baseClass.isAssignableFrom(clazz)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

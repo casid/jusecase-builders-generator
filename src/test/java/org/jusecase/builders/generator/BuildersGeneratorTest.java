@@ -23,6 +23,7 @@ public class BuildersGeneratorTest {
     String[] packages;
     String[] classes;
     String[] excludeClasses;
+    String[] baseClasses;
     boolean nestedClasses;
     String lineSeparator;
 
@@ -63,12 +64,13 @@ public class BuildersGeneratorTest {
 
         whenBuildersAreGenerated();
 
-        thenNumberOfGeneratedBuildersIs(5);
+        thenNumberOfGeneratedBuildersIs(6);
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/CardBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GameEntityBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GoblinBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/UserBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/VectorBuilderMethods.java");
+        thenBuilderIsGenerated("org/jusecase/builders/generator/entities/EntityWithMarkerBuilderMethods.java");
     }
 
     @Test
@@ -76,7 +78,8 @@ public class BuildersGeneratorTest {
         givenPackages("org.jusecase.builders.generator.entities");
         givenExcludeClasses(
               "org.jusecase.builders.generator.entities.Card",
-              "org.jusecase.builders.generator.entities.Vector"
+              "org.jusecase.builders.generator.entities.Vector",
+              "org.jusecase.builders.generator.entities.EntityWithMarker"
         );
 
         whenBuildersAreGenerated();
@@ -85,6 +88,17 @@ public class BuildersGeneratorTest {
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GameEntityBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GoblinBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/UserBuilderMethods.java");
+    }
+
+    @Test
+    public void entitiesPackage_baseClass() {
+        givenPackages("org.jusecase.builders.generator.entities");
+        givenBaseClasses("org.jusecase.builders.generator.entities.EntityMarker");
+
+        whenBuildersAreGenerated();
+
+        thenNumberOfGeneratedBuildersIs(1);
+        thenBuilderIsGenerated("org/jusecase/builders/generator/entities/EntityWithMarkerBuilderMethods.java");
     }
 
     @Test
@@ -188,8 +202,12 @@ public class BuildersGeneratorTest {
         this.excludeClasses = classes;
     }
 
+    private void givenBaseClasses(String ... baseClasses) {
+        this.baseClasses = baseClasses;
+    }
+
     private void whenBuildersAreGenerated() {
-        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, excludeClasses, nestedClasses, lineSeparator);
+        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, excludeClasses, baseClasses, nestedClasses, lineSeparator);
         generator.generate();
     }
 }

@@ -52,6 +52,12 @@ public class BuildersGeneratorMojo extends AbstractMojo {
     public String[] excludeClasses;
 
     /**
+     * If present, only builders for classes in specified packages that inherit one of these base classes are generated.
+     */
+    @Parameter(property = "builders.baseClasses")
+    public String[] baseClasses;
+
+    /**
      * If builders for nested classes should be generated.
      */
     @Parameter(property = "builders.nestedClasses")
@@ -75,6 +81,7 @@ public class BuildersGeneratorMojo extends AbstractMojo {
                     packages,
                     classes,
                     excludeClasses,
+                    baseClasses,
                     nestedClasses,
                     LineSeparator.fromString(lineSeparator).value);
             generator.generate();
