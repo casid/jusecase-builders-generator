@@ -1,6 +1,5 @@
 package org.jusecase.builders.generator;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.jusecase.builders.generator.entities.Card;
 import org.jusecase.builders.generator.entities.Goblin;
@@ -156,7 +155,7 @@ public class BuilderGeneratorTest {
 
     private void thenGeneratedBuilderIsEqualTo(String fileName) {
         try {
-            assertThat(generatedOutput).isEqualTo(IOUtils.toString(an(inputStream().withResource(fileName)), StandardCharsets.UTF_8));
+            assertThat(generatedOutput).isEqualTo(new String(an(inputStream().withResource(fileName)).readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
