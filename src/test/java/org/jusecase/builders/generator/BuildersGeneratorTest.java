@@ -1,13 +1,12 @@
 package org.jusecase.builders.generator;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -178,8 +177,8 @@ public class BuildersGeneratorTest {
         thenBuilderIsGenerated(javaFileName);
 
         try {
-            String actual = FileUtils.readFileToString(new File(targetDirectory, javaFileName));
-            String expected = IOUtils.toString(an(inputStream().withResource(expectedContentFile)));
+            String actual = Files.readString(targetDirectory.toPath().resolve(javaFileName));
+            String expected = new String(an(inputStream().withResource(expectedContentFile)).readAllBytes(), StandardCharsets.UTF_8);
             assertThat(actual).isEqualTo(expected);
         } catch (IOException e) {
             throw new RuntimeException(e);
