@@ -1,7 +1,7 @@
 package org.jusecase.builders.generator;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jusecase.builders.generator.entities.Card;
 import org.jusecase.builders.generator.entities.Goblin;
 import org.jusecase.builders.generator.entities.User;

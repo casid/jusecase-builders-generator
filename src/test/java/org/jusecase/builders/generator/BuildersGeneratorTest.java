@@ -2,14 +2,14 @@ package org.jusecase.builders.generator;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,10 +27,10 @@ public class BuildersGeneratorTest {
     boolean nestedClasses;
     String lineSeparator;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         givenTargetDirectory("");
         nestedClasses = true;
@@ -187,7 +187,7 @@ public class BuildersGeneratorTest {
     }
 
     private void givenTargetDirectory(String relativePath) {
-        this.targetDirectory = new File(temporaryFolder.getRoot(), relativePath);
+        this.targetDirectory = new File(temporaryFolder.toFile(), relativePath);
     }
 
     private void givenPackages(String ... packages) {
