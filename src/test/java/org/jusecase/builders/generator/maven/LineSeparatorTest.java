@@ -1,8 +1,9 @@
 package org.jusecase.builders.generator.maven;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LineSeparatorTest {
     @Test
@@ -31,8 +32,8 @@ public class LineSeparatorTest {
         assertThat(LineSeparator.fromString(null)).isEqualTo(LineSeparator.System);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void unkown() {
-        LineSeparator.fromString("lsdfkdl");
+    @Test
+    public void unknown() {
+        assertThrows(IllegalArgumentException.class, () -> LineSeparator.fromString("lsdfkdl"));
     }
 }
