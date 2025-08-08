@@ -1,8 +1,10 @@
 package org.jusecase.builders.generator.entities;
 
+import javax.annotation.processing.Generated;
+
 import org.jusecase.builders.Builder;
 
-@javax.annotation.Generated(value="jusecase-builders-generator")
+@Generated("jusecase-builders-generator")
 public interface VectorBuilderMethods<T extends Vector, B extends Builder> extends Builder<T> {
     @Override
     default T build() {
