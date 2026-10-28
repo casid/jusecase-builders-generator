@@ -1,4 +1,4 @@
-package org.jusecase.builders.generator.maven;
+package org.jusecase.builders.generator;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package org.jusecase.builders.generator.maven;
+package org.jusecase.builders.generator;
 
 public enum LineSeparator {
     System(java.lang.System.lineSeparator()),

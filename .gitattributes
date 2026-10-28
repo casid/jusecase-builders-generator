@@ -1,0 +1,7 @@
+* text=auto
+*.bat text eol=crlf
+gradlew text eol=lf
+*.jar binary
+
+# expected outputs are compared byte for byte, e.g. with CRLF line separators
+core/src/test/resources/*.expected.txt -text

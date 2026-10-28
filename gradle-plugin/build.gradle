@@ -1,0 +1,41 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '2.2.1'
+}
+
+group = 'org.jusecase'
+version = '2.0.0'
+description = 'Gradle plugin that generates builders for descriptive unit test setups.'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    // The core is built by the Maven reactor, so `mvn install` has to run first when building locally.
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jusecase:builders-generator-core:${version}"
+}
+
+gradlePlugin {
+    website = 'http://jusecase.org'
+    vcsUrl = 'https://github.com/casid/jusecase-builders-generator.git'
+
+    plugins {
+        buildersGenerator {
+            id = 'org.jusecase.builders-generator'
+            implementationClass = 'org.jusecase.builders.generator.gradle.BuildersGeneratorPlugin'
+            displayName = 'JUsecase Builders Generator'
+            tags.set(['jusecase', 'builders', 'testing', 'code-generation'])
+            description = project.description
+        }
+    }
+}
