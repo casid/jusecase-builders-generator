@@ -9,10 +9,12 @@ version = '2.0.0'
 description = 'Gradle plugin that generates builders for descriptive unit test setups.'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
     withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
 }
 
 tasks.withType(Javadoc).configureEach {
