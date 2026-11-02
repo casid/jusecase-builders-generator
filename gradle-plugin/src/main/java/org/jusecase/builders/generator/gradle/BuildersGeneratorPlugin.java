@@ -23,12 +23,11 @@ public class BuildersGeneratorPlugin implements Plugin<Project> {
         extension.getLineSeparator().convention(LineSeparator.System);
 
         project.getPlugins().withType(JavaPlugin.class, javaPlugin -> {
-            SourceSet test = project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
-
             JavaPluginExtension java = project.getExtensions().getByType(JavaPluginExtension.class);
             JavaToolchainService toolchains = project.getExtensions().getByType(JavaToolchainService.class);
             SourceSet main = java.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-            extension.getClasspath().convention(main.getRuntimeClasspath());
+            SourceSet test = java.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
+            extension.getClasspath().convention(project.files(main.getOutput(), main.getCompileClasspath()));
 
             TaskProvider<GenerateBuildersTask> generate = project.getTasks().register("generateBuilders", GenerateBuildersTask.class, task -> {
                 task.setGroup("build");
@@ -39,18 +38,20 @@ public class BuildersGeneratorPlugin implements Plugin<Project> {
                 // The spec only holds a provider, so it stays serializable for the configuration cache.
                 task.getOutputs().cacheIf("target directory is inside the build directory", new InsideBuildDirectory(
                         extension.getTargetDirectory().zip(project.getLayout().getBuildDirectory(),
-                                (target, build) -> target.getAsFile().toPath().startsWith(build.getAsFile().toPath()))));
+                                (target, build) -> target.getAsFile().toPath().toAbsolutePath().normalize()
+                                .startsWith(build.getAsFile().toPath().toAbsolutePath().normalize()))));
                 task.getTargetDirectory().set(extension.getTargetDirectory());
                 task.getPackages().set(extension.getPackages());
                 task.getClasses().set(extension.getClasses());
                 task.getExcludeClasses().set(extension.getExcludeClasses());
                 task.getBaseClasses().set(extension.getBaseClasses());
                 task.getNestedClasses().set(extension.getNestedClasses());
-                task.getLineSeparator().set(extension.getLineSeparator());
+                // Resolve to the literal separator, so the cache key reflects the actual output (System differs per OS).
+                task.getLineSeparator().set(extension.getLineSeparator().map(separator -> separator.value));
             });
 
             // Like the Maven plugin, generate into the test sources (unless disabled). By default the production
-            // classes and their runtime dependencies are scanned, so no cycle with the test compilation arises.
+            // classes and their compile classpath are scanned, so no cycle with the test compilation arises.
             project.afterEvaluate(p -> {
                 if (extension.getAddToTestSources().get()) {
                     test.getJava().srcDir(generate.map(GenerateBuildersTask::getTargetDirectory));

@@ -15,7 +15,8 @@ public interface BuildersGeneratorExtension {
 
     /**
      * Classes and dependencies the builders are generated from. Defaults to the production classes (main source set)
-     * and their runtime dependencies. Test classes are not part of it, since the test output depends on the generated builders.
+     * and their compile classpath, including compileOnly dependencies. Test classes are not part of it, since the test output
+     * depends on the generated builders.
      */
     ConfigurableFileCollection getClasspath();
 

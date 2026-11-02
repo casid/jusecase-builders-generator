@@ -9,7 +9,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.jusecase.builders.generator.BuildersGenerator;
-import org.jusecase.builders.generator.LineSeparator;
 
 import java.io.File;
 import java.net.URL;
@@ -29,7 +28,7 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
         ListProperty<String> getExcludeClasses();
         ListProperty<String> getBaseClasses();
         Property<Boolean> getNestedClasses();
-        Property<LineSeparator> getLineSeparator();
+        Property<String> getLineSeparator();
     }
 
     @Override
@@ -46,7 +45,7 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
                     toArray(p.getExcludeClasses()),
                     toArray(p.getBaseClasses()),
                     p.getNestedClasses().get(),
-                    p.getLineSeparator().get().value).generate();
+                    p.getLineSeparator().get()).generate();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate builders: " + e.getMessage(), e);
         }
@@ -66,7 +65,9 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
         for (File file : p.getProjectClasspath()) {
             urls.add(file.toURI().toURL());
         }
-        return new URLClassLoader(urls.toArray(new URL[0]), Thread.currentThread().getContextClassLoader());
+        // Parent is the platform loader, not the worker's loader: the project's own Guava, builders etc. must win
+        // over the generator's copies, and scanning must not pick up the generator's classpath.
+        return new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getPlatformClassLoader());
     }
 
     private static String[] toArray(ListProperty<String> property) {

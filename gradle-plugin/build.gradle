@@ -5,7 +5,8 @@ plugins {
 }
 
 group = 'org.jusecase'
-version = '2.0.0'
+// Single source of truth for the version is the parent POM of the Maven reactor.
+version = new groovy.xml.XmlSlurper().parse(file('../pom.xml')).version.text()
 description = 'Gradle plugin that generates builders for descriptive unit test setups.'
 
 java {
@@ -24,7 +25,9 @@ tasks.withType(Javadoc).configureEach {
 
 repositories {
     // The core is built by the Maven reactor, so `mvn install` has to run first when building locally.
-    mavenLocal()
+    mavenLocal {
+        content { includeGroup 'org.jusecase' }
+    }
     mavenCentral()
 }
 
