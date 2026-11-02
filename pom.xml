@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         child.project.url.inherit.append.path="false"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd ">
 
     <modelVersion>4.0.0</modelVersion>
@@ -38,7 +39,7 @@
         </license>
     </licenses>
 
-    <scm>
+    <scm child.scm.url.inherit.append.path="false">
         <url>https://github.com/casid/jusecase-builders-generator.git</url>
     </scm>
 
@@ -66,6 +67,48 @@
     </dependencyManagement>
 
 
+
+    <build>
+        <plugins>
+            <!-- Publish POMs without the parent reference, so consumers do not need to resolve the parent POM -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.8.0</version>
+                <configuration>
+                    <flattenMode>ossrh</flattenMode>
+                    <updatePomFile>true</updatePomFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- The parent is not referenced by the published modules, so it is not published (not inherited) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.4</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <!-- Release profile -->
     <profiles>
@@ -138,6 +181,9 @@
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>true</autoPublish>
                             <waitUntil>published</waitUntil>
+                            <excludeArtifacts>
+                                <artifact>builders-generator-parent</artifact>
+                            </excludeArtifacts>
                         </configuration>
                     </plugin>
 
