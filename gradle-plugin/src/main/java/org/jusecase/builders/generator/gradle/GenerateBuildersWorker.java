@@ -1,6 +1,8 @@
 package org.jusecase.builders.generator.gradle;
 
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -16,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuildersWorker.Parameters> {
+
+    private static final Logger LOGGER = Logging.getLogger(GenerateBuildersWorker.class);
 
     public interface Parameters extends WorkParameters {
         ConfigurableFileCollection getProjectClasspath();
@@ -33,6 +37,7 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
         Parameters p = getParameters();
 
         try (URLClassLoader classLoader = createClassLoader(p)) {
+            warnAboutUnknownExcludes(classLoader, p.getExcludeClasses().get());
             new BuildersGenerator(
                     classLoader,
                     p.getTargetDirectory().get().getAsFile(),
@@ -44,6 +49,15 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
                     p.getLineSeparator().get().value).generate();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate builders: " + e.getMessage(), e);
+        }
+    }
+
+    private static void warnAboutUnknownExcludes(ClassLoader classLoader, List<String> excludeClasses) {
+        for (String className : excludeClasses) {
+            if (classLoader.getResource(className.replace('.', '/') + ".class") == null) {
+                LOGGER.warn("excludeClasses entry '{}' was not found on the builders generator classpath and has no effect. "
+                        + "By default only production classes are on it, see 'classpath' of the buildersGenerator extension.", className);
+            }
         }
     }
 

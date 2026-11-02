@@ -15,6 +15,11 @@ java {
     withJavadocJar()
 }
 
+tasks.withType(Javadoc).configureEach {
+    // Skip "no comment" / "no @return" warnings for the plugin's self-describing API
+    options.addBooleanOption('Xdoclint:all,-missing', true)
+}
+
 repositories {
     // The core is built by the Maven reactor, so `mvn install` has to run first when building locally.
     mavenLocal()

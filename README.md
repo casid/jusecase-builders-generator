@@ -26,3 +26,15 @@ buildersGenerator {
     packages = ['com.example.entities']
 }
 ```
+
+Additional Gradle options:
+
+| Option              | Default                                      | Description                                                                                       |
+|---------------------|----------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `addToTestSources`  | `true`                                       | Adds `targetDirectory` to the test sources. Set to `false` for checked-in builders.               |
+| `classpath`         | test compile classpath                       | Classes the builders are generated from. Entries of `excludeClasses` not found on it are warned about. |
+| `lineSeparator`     | `System`                                     | `System`, `Windows` or `Unix`. Groovy scripts can assign it as a string.                          |
+
+The generator runs in a separate process using the project's Java toolchain, so classes compiled for a newer Java
+version than the one Gradle runs on can be loaded. The task is only build-cacheable while `targetDirectory`
+is inside the build directory, so checked-in sources are never overwritten from the cache.
