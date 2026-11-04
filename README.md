@@ -17,6 +17,26 @@ Generator for jusecase builders
 The root `pom.xml` builds `core` and `maven-plugin`. The Gradle plugin is a separate Gradle build that
 resolves the core from Maven, so run `mvn install` first, then `./gradlew build` inside `gradle-plugin`.
 
+## Runtime dependency
+
+Generated builders use `org.jusecase:builders`. The plugins don't add it to your project, so declare it as a test
+dependency yourself:
+
+```xml
+<dependency>
+    <groupId>org.jusecase</groupId>
+    <artifactId>builders</artifactId>
+    <version>1.0.1</version>
+    <scope>test</scope>
+</dependency>
+```
+
+```groovy
+dependencies {
+    testImplementation 'org.jusecase:builders:1.0.1'
+}
+```
+
 ## Target directory
 
 Builders are generated into a dedicated directory inside the build directory by default

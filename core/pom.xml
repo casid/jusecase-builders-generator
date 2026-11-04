@@ -19,6 +19,7 @@
             <groupId>org.jusecase</groupId>
             <artifactId>builders</artifactId>
             <version>1.0.1</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
