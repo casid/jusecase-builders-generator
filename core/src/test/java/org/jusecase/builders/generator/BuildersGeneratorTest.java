@@ -191,6 +191,60 @@ public class BuildersGeneratorTest {
         assertThat(handWritten).exists();
     }
 
+    @Test
+    public void hiddenFilesInTargetDirectory_areIgnoredAndKept() throws IOException {
+        Path stale = temporaryFolder.resolve("org/jusecase/old/RemovedBuilderMethods.java");
+        Files.createDirectories(stale.getParent());
+        Files.write(stale, "@Generated(\"jusecase-builders-generator\")".getBytes(StandardCharsets.UTF_8));
+        Path dsStore = temporaryFolder.resolve("org/jusecase/old/.DS_Store");
+        Files.write(dsStore, new byte[]{0});
+        Path gitkeep = temporaryFolder.resolve(".gitkeep");
+        Files.write(gitkeep, new byte[0]);
+        Path hiddenDirFile = temporaryFolder.resolve(".idea/HandWritten.java");
+        Files.createDirectories(hiddenDirFile.getParent());
+        Files.write(hiddenDirFile, "class HandWritten {}".getBytes(StandardCharsets.UTF_8));
+        givenClasses("org.jusecase.builders.generator.entities.Card");
+
+        whenBuildersAreGenerated();
+
+        assertThat(stale).doesNotExist();
+        assertThat(dsStore).exists();
+        assertThat(gitkeep).exists();
+        assertThat(hiddenDirFile).exists();
+        thenBuilderIsGenerated("org/jusecase/builders/generator/entities/CardBuilderMethods.java");
+    }
+
+    @Test
+    public void symlinkInTargetDirectory_failsWithoutDeletingAnything() throws IOException {
+        Path stale = temporaryFolder.resolve("org/jusecase/old/RemovedBuilderMethods.java");
+        Files.createDirectories(stale.getParent());
+        Files.write(stale, "@Generated(\"jusecase-builders-generator\")".getBytes(StandardCharsets.UTF_8));
+        Path link = temporaryFolder.resolve("org/jusecase/shared");
+        Files.createSymbolicLink(link, stale.getParent());
+        givenClasses("org.jusecase.builders.generator.entities.Card");
+
+        assertThatThrownBy(this::whenBuildersAreGenerated)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("symbolic link")
+                .hasMessageContaining("shared");
+
+        assertThat(stale).exists();
+        assertThat(link).exists();
+    }
+
+    @Test
+    public void symlinkAsTargetDirectory_fails() throws IOException {
+        Path real = Files.createDirectories(temporaryFolder.resolve("real"));
+        Path link = temporaryFolder.resolve("link");
+        Files.createSymbolicLink(link, real);
+        givenTargetDirectory("link");
+        givenClasses("org.jusecase.builders.generator.entities.Card");
+
+        assertThatThrownBy(this::whenBuildersAreGenerated)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("is a symbolic link");
+    }
+
     private void thenNumberOfGeneratedBuildersIs(long expected) {
         try {
             long actual = Files.walk(Paths.get(targetDirectory.getAbsolutePath())).filter(Files::isRegularFile).count();

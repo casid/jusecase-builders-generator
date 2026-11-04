@@ -29,7 +29,8 @@ public class BuildersGeneratorMojo extends AbstractMojo {
     /**
      * Destination dir to store generated builder interfaces. <br>
      * Defaults to 'target/generated-test-sources/jusecase-builders'.<br>
-     * Your IDE should be able to pick up files from this location as sources automatically when generated.
+     * Your IDE should be able to pick up files from this location as sources automatically when generated.<br>
+     * The directory must only contain generated builders: builders of earlier runs are deleted before generating.
      */
     @Parameter(defaultValue = "${project.build.directory}/generated-test-sources/jusecase-builders", property = "builders.targetDirectory")
     public String targetDirectory;

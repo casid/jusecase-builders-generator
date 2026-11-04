@@ -23,6 +23,7 @@ public interface BuildersGeneratorExtension {
     /**
      * Destination dir to store generated builder interfaces.
      * Defaults to 'build/generated/sources/jusecase-builders/test'.
+     * The directory must only contain generated builders: builders of earlier runs are deleted before generating.
      */
     DirectoryProperty getTargetDirectory();
 
