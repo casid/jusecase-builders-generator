@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jusecase.Builders.an;
 import static org.jusecase.Builders.inputStream;
 
@@ -157,6 +158,37 @@ public class BuildersGeneratorTest {
         thenNumberOfGeneratedBuildersIs(2);
         thenBuilderIsGenerated("org/jusecase/builders/generator/usecases/DummyUsecaseRequestBuilderMethods.java", "DummyUsecase.Request.expected.txt");
         thenBuilderIsGenerated("org/jusecase/builders/generator/usecases/DummyUsecaseResponseBuilderMethods.java");
+    }
+
+    @Test
+    public void staleGeneratedFilesAreRemoved() throws IOException {
+        Path stale = temporaryFolder.resolve("org/jusecase/old/RemovedBuilderMethods.java");
+        Files.createDirectories(stale.getParent());
+        Files.write(stale, "@Generated(\"jusecase-builders-generator\")".getBytes(StandardCharsets.UTF_8));
+        givenClasses("org.jusecase.builders.generator.entities.Card");
+
+        whenBuildersAreGenerated();
+
+        assertThat(stale.getParent()).doesNotExist();
+        thenNumberOfGeneratedBuildersIs(1);
+    }
+
+    @Test
+    public void foreignFilesInTargetDirectory_failsWithoutDeletingAnything() throws IOException {
+        Path stale = temporaryFolder.resolve("org/jusecase/old/RemovedBuilderMethods.java");
+        Files.createDirectories(stale.getParent());
+        Files.write(stale, "@Generated(\"jusecase-builders-generator\")".getBytes(StandardCharsets.UTF_8));
+        Path handWritten = temporaryFolder.resolve("org/jusecase/keep/HandWritten.java");
+        Files.createDirectories(handWritten.getParent());
+        Files.write(handWritten, "class HandWritten {}".getBytes(StandardCharsets.UTF_8));
+        givenClasses("org.jusecase.builders.generator.entities.Card");
+
+        assertThatThrownBy(this::whenBuildersAreGenerated)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("HandWritten.java");
+
+        assertThat(stale).exists();
+        assertThat(handWritten).exists();
     }
 
     private void thenNumberOfGeneratedBuildersIs(long expected) {
