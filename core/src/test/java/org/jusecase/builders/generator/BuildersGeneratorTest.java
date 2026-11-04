@@ -150,6 +150,15 @@ public class BuildersGeneratorTest {
     }
 
     @Test
+    public void specificClassThatDoesNotExist_fails() {
+        givenClasses("org.jusecase.builders.generator.entities.DoesNotExist");
+
+        assertThatThrownBy(this::whenBuildersAreGenerated)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("org.jusecase.builders.generator.entities.DoesNotExist");
+    }
+
+    @Test
     public void specificNestedClasses() {
         givenClasses("org.jusecase.builders.generator.usecases.DummyUsecase");
 

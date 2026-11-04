@@ -229,7 +229,7 @@ public class BuildersGenerator {
                 addNestedClasses(classes, clazz);
             }
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("Failed to load class " + className, e);
         }
     }
 
