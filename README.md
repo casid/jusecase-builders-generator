@@ -68,7 +68,7 @@ Additional Gradle options:
 | Option              | Default                                      | Description                                                                                       |
 |---------------------|----------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `addToTestSources`  | `true`                                       | Adds `targetDirectory` to the test sources. Set to `false` for checked-in builders.               |
-| `classpath`         | test compile classpath                       | Classes the builders are generated from. Entries of `excludeClasses` not found on it are warned about. |
+| `classpath`         | main classes and their compile classpath     | Classes the builders are generated from. Entries of `excludeClasses` not found on it are warned about. |
 | `lineSeparator`     | `Unix`                                       | `Unix`, `Windows` or `System`. Groovy scripts can assign it as a string.                          |
 
 The generator runs in a separate process using the project's Java toolchain, so classes compiled for a newer Java
