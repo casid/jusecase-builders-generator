@@ -111,6 +111,13 @@ public class BuilderGeneratorTest {
     }
 
     @Test
+    public void entityOverridesGenericParentClassMethod() {
+        givenEntityClass(EntityOverridesGenericParentClassMethod.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityOverridesGenericParentClassMethod.expected.txt");
+    }
+
+    @Test
     public void entityWithFinalFields() {
         givenEntityClass(EntityWithFinalFields.class);
         whenBuilderIsGenerated();

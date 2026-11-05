@@ -74,6 +74,7 @@ public class PropertiesResolver {
 
     private boolean isSuitableMethod(Method method) {
         return Modifier.isPublic(method.getModifiers()) &&
+                !method.isBridge() &&
                 method.getReturnType().equals(void.class) &&
                 method.getParameterTypes().length == 1 &&
                 method.getName().matches("^set[A-Z].*");
