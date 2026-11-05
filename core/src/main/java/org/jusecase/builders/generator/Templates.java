@@ -1,6 +1,7 @@
 package org.jusecase.builders.generator;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class Templates {
     public static Template BUILDER_CLASS = templateResource("builder-class");
@@ -12,7 +13,7 @@ public class Templates {
         try {
             return Template.fromResource("templates/" + name + ".txt");
         } catch (IOException e) {
-            return null;
+            throw new UncheckedIOException("Failed to load template " + name, e);
         }
     }
 }
