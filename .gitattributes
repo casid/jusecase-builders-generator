@@ -3,5 +3,8 @@
 gradlew text eol=lf
 *.jar binary
 
+# templates are converted to the configured line separator and must be LF on every checkout
+core/src/main/resources/templates/*.txt text eol=lf
+
 # expected outputs are compared byte for byte, e.g. with CRLF line separators
 core/src/test/resources/*.expected.txt -text
