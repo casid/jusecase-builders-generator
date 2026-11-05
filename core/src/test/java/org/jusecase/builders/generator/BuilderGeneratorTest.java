@@ -90,6 +90,20 @@ public class BuilderGeneratorTest {
     }
 
     @Test
+    public void entityWithGenericParentClass() {
+        givenEntityClass(EntityWithGenericParentClass.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithGenericParentClass.expected.txt");
+    }
+
+    @Test
+    public void genericEntity() {
+        givenEntityClass(GenericEntity.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("GenericEntity.expected.txt");
+    }
+
+    @Test
     public void entityOverridesParentClassMethod() {
         givenEntityClass(EntityOverridesParentClassMethod.class);
         whenBuilderIsGenerated();

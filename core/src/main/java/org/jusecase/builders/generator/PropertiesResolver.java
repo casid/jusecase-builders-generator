@@ -1,10 +1,15 @@
 package org.jusecase.builders.generator;
 
+import com.google.common.reflect.TypeToken;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +40,7 @@ public class PropertiesResolver {
             if (isSuitableField(field)) {
                 Property property = new Property();
                 property.name = field.getName();
-                property.type = field.getGenericType();
+                property.type = resolveType(field.getGenericType());
                 property.isSetter = false;
                 properties.add(property);
             }
@@ -47,11 +52,18 @@ public class PropertiesResolver {
             if (isSuitableMethod(method)) {
                 Property property = new Property();
                 property.name = method.getName().substring(3);
-                property.type = method.getGenericParameterTypes()[0];
+                property.type = resolveType(method.getGenericParameterTypes()[0]);
                 property.isSetter = true;
                 properties.add(property);
             }
         }
+    }
+
+    /**
+     * Resolves type variables of generic superclasses to the actual type arguments of the entity class.
+     */
+    private Type resolveType(Type type) {
+        return TypeToken.of(entityClass).resolveType(type).getType();
     }
 
     private boolean isSuitableField(Field field) {
@@ -78,21 +90,28 @@ public class PropertiesResolver {
 
         private String printType(Type type) {
             return printType(type, false);
-      }
+        }
 
-      private String printType( Type type, boolean unwrapArrayToVararg ) {
-         if ( isParametrizedType(type) ) {
-            ParameterizedType parameterizedType = (ParameterizedType)type;
-            String params = Arrays.stream(parameterizedType.getActualTypeArguments()).map(this::printType).collect(Collectors.joining(","));
-            return printType(parameterizedType.getRawType()) + "<" + params + ">";
-         }
-         if (isArray(type)) {
+        private String printType(Type type, boolean unwrapArrayToVararg) {
+            if (type instanceof TypeVariable<?>) {
+                // Not resolvable, e.g. a type variable of a generic entity class: use its erasure
+                return printType(TypeToken.of(type).getRawType(), unwrapArrayToVararg);
+            }
+            if (isParametrizedType(type)) {
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                String params = Arrays.stream(parameterizedType.getActualTypeArguments()).map(this::printType).collect(Collectors.joining(","));
+                return printType(parameterizedType.getRawType()) + "<" + params + ">";
+            }
+            if (type instanceof WildcardType) {
+                return printWildcard((WildcardType) type);
+            }
+            if (isArray(type) || type instanceof GenericArrayType) {
                 Type elementType = getArrayElementType(type);
                 if (unwrapArrayToVararg) {
-               return printType(elementType) + " ...";
-            } else {
-               return printType(elementType) + "[]";
-            }
+                    return printType(elementType) + " ...";
+                } else {
+                    return printType(elementType) + "[]";
+                }
             } else if (isJavaLangType(type)) {
                 return ((Class<?>) type).getSimpleName();
             } else if (isClass(type)) {
@@ -102,9 +121,25 @@ public class PropertiesResolver {
             }
         }
 
-        private boolean isParametrizedType( Type type ) {
-         return type instanceof ParameterizedType;
-      }private Type getArrayElementType(Type type) {
+        private String printWildcard(WildcardType wildcard) {
+            if (wildcard.getLowerBounds().length > 0) {
+                return "? super " + printType(wildcard.getLowerBounds()[0]);
+            }
+            Type upperBound = wildcard.getUpperBounds()[0];
+            if (upperBound == Object.class) {
+                return "?";
+            }
+            return "? extends " + printType(upperBound);
+        }
+
+        private boolean isParametrizedType(Type type) {
+            return type instanceof ParameterizedType;
+        }
+
+        private Type getArrayElementType(Type type) {
+            if (type instanceof GenericArrayType) {
+                return ((GenericArrayType) type).getGenericComponentType();
+            }
             return ((Class<?>) type).getComponentType();
         }
 
