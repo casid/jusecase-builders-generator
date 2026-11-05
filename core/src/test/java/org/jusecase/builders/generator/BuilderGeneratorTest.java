@@ -76,6 +76,13 @@ public class BuilderGeneratorTest {
     }
 
     @Test
+    public void entityWithNestedJavaLangType() {
+        givenEntityClass(EntityWithNestedJavaLangType.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithNestedJavaLangType.expected.txt");
+    }
+
+    @Test
     public void entityWithOverloadedMethods() {
         givenEntityClass(EntityWithOverloadedMethods.class);
         whenBuilderIsGenerated();

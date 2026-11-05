@@ -151,7 +151,8 @@ public class PropertiesResolver {
         private static boolean isJavaLangType(Type type) {
             if (type instanceof Class<?>) {
                 Class<?> clazz = (Class<?>)type;
-                 return clazz.getPackage() == null || "java.lang".equals(clazz.getPackage().getName());
+                 // Nested types aren't implicitly imported, only their enclosing java.lang type is
+                 return clazz.getEnclosingClass() == null && (clazz.getPackage() == null || "java.lang".equals(clazz.getPackage().getName()));
             }
             return false;
         }
