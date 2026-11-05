@@ -66,11 +66,11 @@ public class BuildersGeneratorMojo extends AbstractMojo {
     public boolean nestedClasses = true;
 
     /**
-     * Line separator for generated builders. If not set, system default line separator is used.
+     * Line separator for generated builders. If not set, Unix line separators are used, regardless of the system.
      * @see LineSeparator
      */
     @Parameter(property = "builders.lineSeparator")
-    public String lineSeparator = LineSeparator.System.toString();
+    public String lineSeparator = LineSeparator.Unix.toString();
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

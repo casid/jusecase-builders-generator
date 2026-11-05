@@ -53,7 +53,7 @@ public interface BuildersGeneratorExtension {
     Property<Boolean> getNestedClasses();
 
     /**
-     * Line separator for generated builders. If not set, system default line separator is used.
+     * Line separator for generated builders. If not set, Unix line separators are used, regardless of the system.
      * Groovy build scripts can assign the constant name as a string (e.g. {@code lineSeparator = 'Unix'}).
      */
     Property<LineSeparator> getLineSeparator();

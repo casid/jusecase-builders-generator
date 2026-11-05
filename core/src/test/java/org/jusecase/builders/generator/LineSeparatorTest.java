@@ -29,7 +29,7 @@ public class LineSeparatorTest {
 
     @Test
     public void notSet() {
-        assertThat(LineSeparator.fromString(null)).isEqualTo(LineSeparator.System);
+        assertThat(LineSeparator.fromString(null)).isEqualTo(LineSeparator.Unix);
     }
 
     @Test

@@ -13,7 +13,7 @@ public enum LineSeparator {
 
     public static LineSeparator fromString(String string) {
         if (string == null) {
-            return System;
+            return Unix;
         }
         return LineSeparator.valueOf(string);
     }

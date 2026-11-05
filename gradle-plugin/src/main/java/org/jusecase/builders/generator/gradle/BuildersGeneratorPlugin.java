@@ -20,7 +20,7 @@ public class BuildersGeneratorPlugin implements Plugin<Project> {
         extension.getTargetDirectory().convention(project.getLayout().getBuildDirectory().dir("generated/sources/jusecase-builders/test"));
         extension.getAddToTestSources().convention(true);
         extension.getNestedClasses().convention(true);
-        extension.getLineSeparator().convention(LineSeparator.System);
+        extension.getLineSeparator().convention(LineSeparator.Unix);
 
         project.getPlugins().withType(JavaPlugin.class, javaPlugin -> {
             JavaPluginExtension java = project.getExtensions().getByType(JavaPluginExtension.class);
