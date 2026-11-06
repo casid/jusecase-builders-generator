@@ -48,6 +48,31 @@ class BuildersGeneratorPluginIT {
     }
 
     @Test
+    void generationIsUpToDateIfOnlyMethodBodiesChange() throws IOException {
+        copySampleProject("generate-builders");
+        runner("generateBuilders").build();
+
+        replaceInUser("this.name = name;", "this.name = name == null ? null : name.trim();");
+        BuildResult result = runner("generateBuilders").build();
+
+        assertThat(result.task(":compileJava").getOutcome()).isEqualTo(SUCCESS);
+        assertThat(result.task(":generateBuilders").getOutcome()).isEqualTo(UP_TO_DATE);
+    }
+
+    @Test
+    void generationRunsAgainIfThePublicApiChanges() throws IOException {
+        copySampleProject("generate-builders");
+        runner("generateBuilders").build();
+
+        replaceInUser("public String getName() {", "public void setNickname(String nickname) {\n    }\n\n    public String getName() {");
+        BuildResult result = runner("generateBuilders").build();
+
+        assertThat(result.task(":generateBuilders").getOutcome()).isEqualTo(SUCCESS);
+        Path generated = projectDir.resolve("build/generated/sources/jusecase-builders/test/example/UserBuilderMethods.java");
+        assertThat(generated).content().contains("withNickname");
+    }
+
+    @Test
     void worksWithConfigurationCache() throws IOException {
         copySampleProject("generate-builders");
         runner("test", "--configuration-cache").build();
@@ -74,6 +99,13 @@ class BuildersGeneratorPluginIT {
         BuildResult result = runner("help").build();
 
         assertThat(result.getOutput()).contains("requires the 'java' plugin");
+    }
+
+    private void replaceInUser(String search, String replacement) throws IOException {
+        Path user = projectDir.resolve("src/main/java/example/User.java");
+        String content = Files.readString(user);
+        assertThat(content).contains(search);
+        Files.writeString(user, content.replace(search, replacement));
     }
 
     private GradleRunner runner(String... arguments) {

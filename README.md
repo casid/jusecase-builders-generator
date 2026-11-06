@@ -123,3 +123,5 @@ Additional Gradle options:
 The generator runs in a separate process using the project's Java toolchain, so classes compiled for a newer Java
 version than the one Gradle runs on can be loaded. The task is only build-cacheable while `targetDirectory`
 is inside the build directory, so checked-in sources are never overwritten from the cache.
+The task only tracks the public API of the scanned classes (compile classpath normalization), so builders are not
+regenerated if only method bodies or private members change.

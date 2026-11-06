@@ -18,9 +18,11 @@ public abstract class GenerateBuildersTask extends DefaultTask {
     private static final int MIN_JAVA_VERSION = 17;
 
     /**
-     * Compiled classes and dependencies the builders are generated from.
+     * Compiled classes and dependencies the builders are generated from. Builders only depend on the public API of
+     * these classes, so only that is tracked (compile classpath normalization): changes to method bodies or private
+     * members don't regenerate the builders.
      */
-    @Classpath
+    @CompileClasspath
     public abstract ConfigurableFileCollection getClasspath();
 
     /**
