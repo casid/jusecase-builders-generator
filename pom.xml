@@ -17,6 +17,7 @@
     <modules>
         <module>core</module>
         <module>maven-plugin</module>
+        <module>relocation</module>
     </modules>
 
     <developers>
@@ -69,6 +70,12 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+            </plugin>
+
             <!-- Publish POMs without the parent reference, so consumers do not need to resolve the parent POM -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

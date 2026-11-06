@@ -21,7 +21,8 @@ resolves the core from Maven, so run `mvn install` first, then `./gradlew build`
 
 Maven plugin:
 
-- The artifact is now `org.jusecase:builders-generator-maven-plugin`.
+- The artifact is now `org.jusecase:builders-generator-maven-plugin`. Version 2.0.0 of the old
+  `org.jusecase:builders-generator` relocates to it, so Maven warns and resolves the new artifact.
 - Only production classes and their compile classpath are scanned. Entities in `src/test` no longer get builders, and
   `classes` or `baseClasses` entries that only exist in test code fail with `Failed to load class`.
 - Classes on the plugin's own classpath are no longer scanned, so builders generated from them are gone.
