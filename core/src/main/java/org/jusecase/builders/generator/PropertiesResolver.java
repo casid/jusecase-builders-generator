@@ -5,28 +5,46 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PropertiesResolver {
     private final Class<?> entityClass;
+    private final TypePrinter printer;
 
     public PropertiesResolver(Class<?> entityClass) {
         this.entityClass = entityClass;
+        this.printer = new TypePrinter(entityClass);
+    }
+
+    public String getEntityTypeParameters() {
+        return printer.printEntityTypeParameters();
+    }
+
+    public String getEntityTypeArguments() {
+        return printer.printEntityTypeArguments();
     }
 
     public Collection<Property> resolveProperties() {
-        SortedSet<Property> properties = new TreeSet<>();
+        Map<String, Property> properties = new HashMap<>();
         addProperties(entityClass, properties);
-        return properties;
+        return new TreeSet<>(properties.values());
     }
 
-    private void addProperties(Class<?> clazz, Collection<Property> properties) {
+    /**
+     * Properties generating the same builder method must only be added once. Java doesn't allow methods with the same
+     * name and erasure, so that's what identifies a builder method. Setters win over fields, as they may contain logic,
+     * and subclasses win over parent classes.
+     */
+    private void addProperty(Map<String, Property> properties, Property property) {
+        String signature = property.nameStartingWithUppercase() + "(" + TypeToken.of(property.type).getRawType().getName() + ")";
+        Property existing = properties.get(signature);
+        if (existing == null || (property.isSetter && !existing.isSetter)) {
+            properties.put(signature, property);
+        }
+    }
+
+    private void addProperties(Class<?> clazz, Map<String, Property> properties) {
         if (clazz != null && clazz != Object.class) {
             addPublicFields(clazz, properties);
             addSetterMethods(clazz, properties);
@@ -35,28 +53,33 @@ public class PropertiesResolver {
         }
     }
 
-    private void addPublicFields(Class<?> clazz, Collection<Property> properties) {
+    private void addPublicFields(Class<?> clazz, Map<String, Property> properties) {
         for (Field field : clazz.getDeclaredFields()) {
             if (isSuitableField(field)) {
                 Property property = new Property();
                 property.name = field.getName();
-                property.type = resolveType(field.getGenericType());
+                setType(property, field.getGenericType());
                 property.isSetter = false;
-                properties.add(property);
+                addProperty(properties, property);
             }
         }
     }
 
-    private void addSetterMethods(Class<?> clazz, Collection<Property> properties) {
+    private void addSetterMethods(Class<?> clazz, Map<String, Property> properties) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (isSuitableMethod(method)) {
                 Property property = new Property();
                 property.name = method.getName().substring(3);
-                property.type = resolveType(method.getGenericParameterTypes()[0]);
+                setType(property, method.getGenericParameterTypes()[0]);
                 property.isSetter = true;
-                properties.add(property);
+                addProperty(properties, property);
             }
         }
+    }
+
+    private void setType(Property property, Type type) {
+        property.type = printer.printableType(resolveType(type));
+        property.printer = printer.forType(property.type);
     }
 
     /**
@@ -85,84 +108,14 @@ public class PropertiesResolver {
         public Type    type;
         public boolean isSetter;
 
+        private TypePrinter printer;
+
         public String getTypeString() {
-            return printType(type, true);
+            return printer.printParameter(type);
         }
 
-        private String printType(Type type) {
-            return printType(type, false);
-        }
-
-        private String printType(Type type, boolean unwrapArrayToVararg) {
-            if (type instanceof TypeVariable<?>) {
-                // Not resolvable, e.g. a type variable of a generic entity class: use its erasure
-                return printType(TypeToken.of(type).getRawType(), unwrapArrayToVararg);
-            }
-            if (isParametrizedType(type)) {
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                String params = Arrays.stream(parameterizedType.getActualTypeArguments()).map(this::printType).collect(Collectors.joining(","));
-                return printType(parameterizedType.getRawType()) + "<" + params + ">";
-            }
-            if (type instanceof WildcardType) {
-                return printWildcard((WildcardType) type);
-            }
-            if (isArray(type) || type instanceof GenericArrayType) {
-                Type elementType = getArrayElementType(type);
-                if (unwrapArrayToVararg) {
-                    return printType(elementType) + " ...";
-                } else {
-                    return printType(elementType) + "[]";
-                }
-            } else if (isJavaLangType(type)) {
-                return ((Class<?>) type).getSimpleName();
-            } else if (isClass(type)) {
-                return ((Class<?>) type).getCanonicalName();
-            } else {
-                return type.getTypeName();
-            }
-        }
-
-        private String printWildcard(WildcardType wildcard) {
-            if (wildcard.getLowerBounds().length > 0) {
-                return "? super " + printType(wildcard.getLowerBounds()[0]);
-            }
-            Type upperBound = wildcard.getUpperBounds()[0];
-            if (upperBound == Object.class) {
-                return "?";
-            }
-            return "? extends " + printType(upperBound);
-        }
-
-        private boolean isParametrizedType(Type type) {
-            return type instanceof ParameterizedType;
-        }
-
-        private Type getArrayElementType(Type type) {
-            if (type instanceof GenericArrayType) {
-                return ((GenericArrayType) type).getGenericComponentType();
-            }
-            return ((Class<?>) type).getComponentType();
-        }
-
-        private static boolean isClass(Type type) {
-            return type instanceof Class<?>;
-        }
-
-        private static boolean isJavaLangType(Type type) {
-            if (type instanceof Class<?>) {
-                Class<?> clazz = (Class<?>)type;
-                 // Nested types aren't implicitly imported, only their enclosing java.lang type is
-                 return clazz.getEnclosingClass() == null && (clazz.getPackage() == null || "java.lang".equals(clazz.getPackage().getName()));
-            }
-            return false;
-        }
-
-        private static boolean isArray( Type type ) {
-            if (type instanceof Class<?>) {
-                Class<?> clazz = (Class<?>)type;
-                return clazz.isArray();
-            }
-            return false;
+        public String getMethodTypeParameters() {
+            return printer.printMethodTypeParameters();
         }
 
         @Override

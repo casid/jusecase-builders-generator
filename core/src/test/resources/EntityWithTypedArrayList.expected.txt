@@ -13,7 +13,7 @@ public interface EntityWithTypedArrayListBuilderMethods<T extends EntityWithType
 
     T getEntity();
 
-    default B withValues(java.util.ArrayList<Integer> value) {
+    default B withValues(java.util.ArrayList<java.lang.Integer> value) {
         getEntity().values = value;
         return (B)this;
     }

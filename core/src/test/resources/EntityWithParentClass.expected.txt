@@ -13,12 +13,12 @@ public interface EntityWithParentClassBuilderMethods<T extends EntityWithParentC
 
     T getEntity();
 
-    default B withChildValue(String value) {
+    default B withChildValue(java.lang.String value) {
         getEntity().setChildValue(value);
         return (B)this;
     }
 
-    default B withParentValue(String value) {
+    default B withParentValue(java.lang.String value) {
         getEntity().setParentValue(value);
         return (B)this;
     }

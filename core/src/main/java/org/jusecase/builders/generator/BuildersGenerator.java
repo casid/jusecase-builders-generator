@@ -247,7 +247,8 @@ public class BuildersGenerator {
 
     private void addNestedClasses(Set<Class<?>> classes, Class<?> clazz) {
         for (Class<?> nestedClass : clazz.getDeclaredClasses()) {
-            if (Modifier.isStatic(nestedClass.getModifiers())) {
+            // The generated builder can't access private classes
+            if (Modifier.isStatic(nestedClass.getModifiers()) && !Modifier.isPrivate(nestedClass.getModifiers())) {
                 classes.add(nestedClass);
             }
         }

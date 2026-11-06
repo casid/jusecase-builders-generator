@@ -13,12 +13,12 @@ public interface DummyUsecaseRequestBuilderMethods<T extends DummyUsecase.Reques
 
     T getEntity();
 
-    default B withDummyEmail(String value) {
+    default B withDummyEmail(java.lang.String value) {
         getEntity().dummyEmail = value;
         return (B)this;
     }
 
-    default B withDummyPassword(String value) {
+    default B withDummyPassword(java.lang.String value) {
         getEntity().dummyPassword = value;
         return (B)this;
     }

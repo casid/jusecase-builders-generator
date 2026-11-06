@@ -5,7 +5,7 @@ import javax.annotation.processing.Generated;
 import org.jusecase.builders.Builder;
 
 @Generated("jusecase-builders-generator")
-public interface GenericEntityBuilderMethods<T extends GenericEntity, B extends Builder> extends Builder<T> {
+public interface GenericEntityBuilderMethods<T extends GenericEntity<V>, B extends Builder, V extends java.lang.Number> extends Builder<T> {
     @Override
     default T build() {
         return getEntity();
@@ -13,7 +13,7 @@ public interface GenericEntityBuilderMethods<T extends GenericEntity, B extends 
 
     T getEntity();
 
-    default B withValue(Number value) {
+    default B withValue(V value) {
         getEntity().setValue(value);
         return (B)this;
     }

@@ -5,6 +5,6 @@ import javax.annotation.processing.Generated;
 import org.jusecase.builders.Builder;
 
 @Generated("jusecase-builders-generator")
-public interface ${builder-class}<T extends ${entity-class}, B extends Builder> extends Builder<T> {
+public interface ${builder-class}<T extends ${entity-class}${entity-type-arguments}, B extends Builder${entity-type-parameters}> extends Builder<T> {
 ${body}
 }

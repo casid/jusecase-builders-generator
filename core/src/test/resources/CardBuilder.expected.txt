@@ -28,7 +28,7 @@ public interface CardBuilderMethods<T extends Card, B extends Builder> extends B
         return (B)this;
     }
 
-    default B withName(String value) {
+    default B withName(java.lang.String value) {
         getEntity().setName(value);
         return (B)this;
     }
@@ -38,7 +38,7 @@ public interface CardBuilderMethods<T extends Card, B extends Builder> extends B
         return (B)this;
     }
 
-    default B withSinceVersion(String value) {
+    default B withSinceVersion(java.lang.String value) {
         getEntity().setSinceVersion(value);
         return (B)this;
     }

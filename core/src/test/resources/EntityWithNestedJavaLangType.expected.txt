@@ -18,7 +18,7 @@ public interface EntityWithNestedJavaLangTypeBuilderMethods<T extends EntityWith
         return (B)this;
     }
 
-    default B withName(String value) {
+    default B withName(java.lang.String value) {
         getEntity().setName(value);
         return (B)this;
     }

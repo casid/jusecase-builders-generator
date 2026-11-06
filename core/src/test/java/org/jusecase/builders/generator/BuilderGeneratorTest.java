@@ -6,6 +6,7 @@ import org.jusecase.builders.generator.entities.Goblin;
 import org.jusecase.builders.generator.entities.User;
 import org.jusecase.builders.generator.entities.Vector;
 import org.jusecase.builders.generator.oddities.*;
+import org.jusecase.builders.generator.oddities.shadow.EntityWithShadowedJavaLangType;
 import org.jusecase.builders.generator.usecases.DummyUsecase;
 
 import java.io.ByteArrayOutputStream;
@@ -122,6 +123,69 @@ public class BuilderGeneratorTest {
         givenEntityClass(EntityOverridesGenericParentClassMethod.class);
         whenBuilderIsGenerated();
         thenGeneratedBuilderIsEqualTo("EntityOverridesGenericParentClassMethod.expected.txt");
+    }
+
+    @Test
+    public void entityWithRawOverride() {
+        givenEntityClass(EntityWithRawOverride.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithRawOverride.expected.txt");
+    }
+
+    @Test
+    public void entityWithFieldAndSetter() {
+        givenEntityClass(EntityWithFieldAndSetter.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithFieldAndSetter.expected.txt");
+    }
+
+    @Test
+    public void genericEntityWithTypeArguments() {
+        givenEntityClass(GenericEntityWithTypeArguments.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("GenericEntityWithTypeArguments.expected.txt");
+    }
+
+    @Test
+    public void entityWithOwnerTypes() {
+        givenEntityClass(EntityWithOwnerTypes.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithOwnerTypes.expected.txt");
+    }
+
+    @Test
+    public void entityWithShadowedJavaLangType() {
+        givenEntityClass(EntityWithShadowedJavaLangType.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithShadowedJavaLangType.expected.txt");
+    }
+
+    @Test
+    public void entityWithRawParent() {
+        givenEntityClass(EntityWithRawParent.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithRawParent.expected.txt");
+    }
+
+    @Test
+    public void genericEntityWithBuilderTypeNames() {
+        givenEntityClass(GenericEntityWithBuilderTypeNames.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("GenericEntityWithBuilderTypeNames.expected.txt");
+    }
+
+    @Test
+    public void entityWithGenericSetters() {
+        givenEntityClass(EntityWithGenericSetters.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("EntityWithGenericSetters.expected.txt");
+    }
+
+    @Test
+    public void genericEntityWithClashingSetterVariable() {
+        givenEntityClass(GenericEntityWithClashingSetterVariable.class);
+        whenBuilderIsGenerated();
+        thenGeneratedBuilderIsEqualTo("GenericEntityWithClashingSetterVariable.expected.txt");
     }
 
     @Test

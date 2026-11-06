@@ -146,6 +146,16 @@ public class BuildersGeneratorTest {
     }
 
     @Test
+    public void privateNestedClass_noBuilderIsGenerated() {
+        givenPackages("org.jusecase.builders.generator.privatenested");
+
+        whenBuildersAreGenerated();
+
+        thenNumberOfGeneratedBuildersIs(1);
+        thenBuilderIsGenerated("org/jusecase/builders/generator/privatenested/OuterWithPrivateNestedClassBuilderMethods.java");
+    }
+
+    @Test
     public void noClasses() {
         givenClasses();
         whenBuildersAreGenerated();

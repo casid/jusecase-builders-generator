@@ -61,6 +61,17 @@ Both plugins scan the production classes and their compile classpath in isolatio
 Test classes are not scanned, since they may depend on the generated builders, so entities in `src/test` don't get
 builders. Entries of `excludeClasses` that are not found are warned about.
 
+## Generic entities
+
+Type parameters of an entity are appended to those of its generated builder interface, so they have to be provided
+when implementing it. They are renamed if they clash, e.g. `T` of the entity becomes `T1` in the builder interface.
+
+```java
+class GenBuilder implements GenBuilderMethods<Gen<Integer>, GenBuilder, Integer> {
+    // ...
+}
+```
+
 ## Target directory
 
 Builders are generated into a dedicated directory inside the build directory by default

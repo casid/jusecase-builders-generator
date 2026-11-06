@@ -13,13 +13,15 @@ public class BuilderGenerator {
     private final Class<?> entityClass;
     private final String lineSeparator;
     private final Charset charset;
+    private final PropertiesResolver propertiesResolver;
     private final Collection<Property> properties;
 
     public BuilderGenerator(Class<?> entityClass, String encoding, String lineSeparator) {
         this.entityClass = entityClass;
         this.lineSeparator = lineSeparator;
         this.charset = Charset.forName(encoding);
-        this.properties = new PropertiesResolver(entityClass).resolveProperties();
+        this.propertiesResolver = new PropertiesResolver(entityClass);
+        this.properties = propertiesResolver.resolveProperties();
     }
 
     public void generate(OutputStream os) throws IOException {
@@ -28,6 +30,8 @@ public class BuilderGenerator {
             classProcessor.setProperty("package", entityClass.getPackage().getName());
             classProcessor.setProperty("builder-class", getBuilderClassName());
             classProcessor.setProperty("entity-class", getEntityClassName());
+            classProcessor.setProperty("entity-type-arguments", propertiesResolver.getEntityTypeArguments());
+            classProcessor.setProperty("entity-type-parameters", propertiesResolver.getEntityTypeParameters());
             classProcessor.setProperty("body", generateBody(classProcessor));
             writer.write(classProcessor.process());
             writer.flush();
@@ -75,6 +79,7 @@ public class BuilderGenerator {
         methodProcessor.setProperties(classProcessor);
         methodProcessor.setProperty("property-name", property.name);
         methodProcessor.setProperty("property-type", property.getTypeString());
+        methodProcessor.setProperty("method-type-parameters", property.getMethodTypeParameters());
         methodProcessor.setProperty("property-name-starting-with-uppercase", property.nameStartingWithUppercase());
         body.append(methodProcessor.process());
     }

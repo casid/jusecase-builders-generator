@@ -28,12 +28,12 @@ public interface EntityWithGenericParentClassBuilderMethods<T extends EntityWith
         return (B)this;
     }
 
-    default B withItemMap(java.util.Map<? extends String,? super org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item> value) {
+    default B withItemMap(java.util.Map<? extends java.lang.String,? super org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item> value) {
         getEntity().setItemMap(value);
         return (B)this;
     }
 
-    default B withKey(String value) {
+    default B withKey(java.lang.String value) {
         getEntity().setKey(value);
         return (B)this;
     }

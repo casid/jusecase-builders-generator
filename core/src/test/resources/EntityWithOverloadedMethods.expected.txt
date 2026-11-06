@@ -28,7 +28,7 @@ public interface EntityWithOverloadedMethodsBuilderMethods<T extends EntityWithO
         return (B)this;
     }
 
-    default B withValue(String value) {
+    default B withValue(java.lang.String value) {
         getEntity().setValue(value);
         return (B)this;
     }

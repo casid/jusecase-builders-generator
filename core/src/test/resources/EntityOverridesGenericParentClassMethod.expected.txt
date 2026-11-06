@@ -13,7 +13,7 @@ public interface EntityOverridesGenericParentClassMethodBuilderMethods<T extends
 
     T getEntity();
 
-    default B withValue(String value) {
+    default B withValue(java.lang.String value) {
         getEntity().setValue(value);
         return (B)this;
     }

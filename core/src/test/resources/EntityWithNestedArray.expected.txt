@@ -13,7 +13,7 @@ public interface EntityWithNestedArrayBuilderMethods<T extends EntityWithNestedA
 
     T getEntity();
 
-    default B withValues(String[] ... value) {
+    default B withValues(java.lang.String[] ... value) {
         getEntity().setValues(value);
         return (B)this;
     }

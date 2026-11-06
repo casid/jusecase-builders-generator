@@ -18,7 +18,7 @@ public interface UserBuilderMethods<T extends User, B extends Builder> extends B
         return (B)this;
     }
 
-    default B withName(String value) {
+    default B withName(java.lang.String value) {
         getEntity().setName(value);
         return (B)this;
     }

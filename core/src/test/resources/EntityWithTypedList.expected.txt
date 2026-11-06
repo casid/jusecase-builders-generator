@@ -13,7 +13,7 @@ public interface EntityWithTypedListBuilderMethods<T extends EntityWithTypedList
 
     T getEntity();
 
-    default B withValues(java.util.List<Integer> value) {
+    default B withValues(java.util.List<java.lang.Integer> value) {
         getEntity().values = value;
         return (B)this;
     }
