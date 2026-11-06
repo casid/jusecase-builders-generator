@@ -77,8 +77,6 @@ public class BuildersGeneratorMojo extends AbstractMojo {
         try (URLClassLoader classLoader = createClassLoader()) {
             getLog().info("Generating builder interfaces...");
 
-            warnAboutUnknownExcludes(classLoader);
-
             BuildersGenerator generator = new BuildersGenerator(
                     classLoader,
                     targetDirectory,
@@ -87,7 +85,8 @@ public class BuildersGeneratorMojo extends AbstractMojo {
                     excludeClasses,
                     baseClasses,
                     nestedClasses,
-                    LineSeparator.fromString(lineSeparator).value);
+                    LineSeparator.fromString(lineSeparator).value,
+                    getLog()::warn);
             generator.generate();
             project.addTestCompileSourceRoot(targetDirectory.getPath());
 
@@ -95,18 +94,6 @@ public class BuildersGeneratorMojo extends AbstractMojo {
 
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
-        }
-    }
-
-    private void warnAboutUnknownExcludes(ClassLoader classLoader) {
-        if (excludeClasses == null) {
-            return;
-        }
-        for (String className : excludeClasses) {
-            if (classLoader.getResource(className.replace('.', '/') + ".class") == null) {
-                getLog().warn("excludeClasses entry '" + className + "' was not found on the compile classpath and has no effect. "
-                        + "Test classes are not part of it.");
-            }
         }
     }
 

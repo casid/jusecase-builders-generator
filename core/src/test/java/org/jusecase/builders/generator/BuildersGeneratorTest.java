@@ -10,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,6 +28,7 @@ public class BuildersGeneratorTest {
     String[] baseClasses;
     boolean nestedClasses;
     String lineSeparator;
+    List<String> warnings = new ArrayList<>();
 
     @TempDir
     public Path temporaryFolder;
@@ -88,6 +91,18 @@ public class BuildersGeneratorTest {
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GameEntityBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/GoblinBuilderMethods.java");
         thenBuilderIsGenerated("org/jusecase/builders/generator/entities/UserBuilderMethods.java");
+        assertThat(warnings).isEmpty();
+    }
+
+    @Test
+    public void unknownExcludeClass_warns() {
+        givenPackages("org.jusecase.builders.generator.entities");
+        givenExcludeClasses("org.jusecase.builders.generator.entities.DoesNotExist");
+
+        whenBuildersAreGenerated();
+
+        assertThat(warnings).hasSize(1);
+        assertThat(warnings.get(0)).contains("org.jusecase.builders.generator.entities.DoesNotExist");
     }
 
     @Test
@@ -301,7 +316,7 @@ public class BuildersGeneratorTest {
     }
 
     private void whenBuildersAreGenerated() {
-        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, excludeClasses, baseClasses, nestedClasses, lineSeparator);
+        generator = new BuildersGenerator(Thread.currentThread().getContextClassLoader(), targetDirectory, packages, classes, excludeClasses, baseClasses, nestedClasses, lineSeparator, warnings::add);
         generator.generate();
     }
 }

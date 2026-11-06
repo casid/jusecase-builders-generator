@@ -36,7 +36,6 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
         Parameters p = getParameters();
 
         try (URLClassLoader classLoader = createClassLoader(p)) {
-            warnAboutUnknownExcludes(classLoader, p.getExcludeClasses().get());
             new BuildersGenerator(
                     classLoader,
                     p.getTargetDirectory().get().getAsFile(),
@@ -45,18 +44,10 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
                     toArray(p.getExcludeClasses()),
                     toArray(p.getBaseClasses()),
                     p.getNestedClasses().get(),
-                    p.getLineSeparator().get()).generate();
+                    p.getLineSeparator().get(),
+                    LOGGER::warn).generate();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate builders: " + e.getMessage(), e);
-        }
-    }
-
-    private static void warnAboutUnknownExcludes(ClassLoader classLoader, List<String> excludeClasses) {
-        for (String className : excludeClasses) {
-            if (classLoader.getResource(className.replace('.', '/') + ".class") == null) {
-                LOGGER.warn("excludeClasses entry '{}' was not found on the builders generator classpath and has no effect. "
-                        + "By default only production classes are on it, see 'classpath' of the buildersGenerator extension.", className);
-            }
         }
     }
 

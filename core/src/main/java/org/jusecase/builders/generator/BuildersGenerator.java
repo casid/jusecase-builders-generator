@@ -30,8 +30,9 @@ public class BuildersGenerator {
     private final List<Class<?>> baseClasses;
     private final boolean  nestedClasses;
     private final String lineSeparator;
+    private final Logger logger;
 
-    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, String[] excludeClasses, String[] baseClasses, boolean nestedClasses, String lineSeparator) {
+    public BuildersGenerator(ClassLoader classLoader, File targetDirectory, String[] packages, String[] classes, String[] excludeClasses, String[] baseClasses, boolean nestedClasses, String lineSeparator, Logger logger) {
         this.classLoader = classLoader;
         this.targetDirectory = targetDirectory;
         this.packages = packages;
@@ -39,10 +40,12 @@ public class BuildersGenerator {
         this.excludeClasses = excludeClasses == null ? Collections.emptySet() : new HashSet<>(Arrays.asList(excludeClasses));
         this.nestedClasses = nestedClasses;
         this.lineSeparator = lineSeparator;
+        this.logger = logger;
         this.baseClasses = loadBaseClasses(classLoader, baseClasses);
     }
 
     public void generate() {
+        warnAboutUnknownExcludes();
         cleanTargetDirectory();
 
         Set<Class<?>> classes = new HashSet<>();
@@ -50,6 +53,15 @@ public class BuildersGenerator {
         addSpecificClasses(classes);
 
         generateBuilders(classes);
+    }
+
+    private void warnAboutUnknownExcludes() {
+        for (String className : excludeClasses) {
+            if (classLoader.getResource(className.replace('.', '/') + ".class") == null) {
+                logger.warn("excludeClasses entry '" + className + "' was not found on the builders generator classpath and has no effect. "
+                        + "By default only production classes are on it.");
+            }
+        }
     }
 
     /**
