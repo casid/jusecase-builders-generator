@@ -1,0 +1,25 @@
+package org.jusecase.builders.generator.oddities;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface GenericEntityWithBuilderTypeNamesBuilderMethods<T extends GenericEntityWithBuilderTypeNames<T1,B1>, B extends Builder, T1 extends java.lang.Number, B1 extends java.lang.Comparable<B1>> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withFirst(T1 value) {
+        getEntity().setFirst(value);
+        return (B)this;
+    }
+
+    default B withSecond(B1 value) {
+        getEntity().setSecond(value);
+        return (B)this;
+    }
+}

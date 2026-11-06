@@ -1,0 +1,30 @@
+package org.jusecase.builders.generator.oddities;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface EntityWithOwnerTypesBuilderMethods<T extends EntityWithOwnerTypes, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withEntry(java.util.Map.Entry<java.lang.String,java.lang.Integer> value) {
+        getEntity().setEntry(value);
+        return (B)this;
+    }
+
+    default B withGenericInner(org.jusecase.builders.generator.oddities.GenericOuterClass<java.lang.String>.GenericInner<java.lang.Integer> value) {
+        getEntity().setGenericInner(value);
+        return (B)this;
+    }
+
+    default B withInner(org.jusecase.builders.generator.oddities.GenericOuterClass<java.lang.String>.Inner value) {
+        getEntity().setInner(value);
+        return (B)this;
+    }
+}

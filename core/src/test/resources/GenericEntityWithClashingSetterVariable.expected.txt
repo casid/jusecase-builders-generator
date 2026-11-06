@@ -1,0 +1,20 @@
+package org.jusecase.builders.generator.oddities;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface GenericEntityWithClashingSetterVariableBuilderMethods<T extends GenericEntityWithClashingSetterVariable<X>, B extends Builder, X> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default <X1> B withMapping(java.util.Map<X,X1> value) {
+        getEntity().setMapping(value);
+        return (B)this;
+    }
+}

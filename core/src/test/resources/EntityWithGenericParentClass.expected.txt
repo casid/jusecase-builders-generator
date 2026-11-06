@@ -1,0 +1,55 @@
+package org.jusecase.builders.generator.oddities;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface EntityWithGenericParentClassBuilderMethods<T extends EntityWithGenericParentClass, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withItem(org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item value) {
+        getEntity().setItem(value);
+        return (B)this;
+    }
+
+    default B withItemArray(org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item ... value) {
+        getEntity().setItemArray(value);
+        return (B)this;
+    }
+
+    default B withItemList(java.util.List<org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item> value) {
+        getEntity().setItemList(value);
+        return (B)this;
+    }
+
+    default B withItemMap(java.util.Map<? extends java.lang.String,? super org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item> value) {
+        getEntity().setItemMap(value);
+        return (B)this;
+    }
+
+    default B withKey(java.lang.String value) {
+        getEntity().setKey(value);
+        return (B)this;
+    }
+
+    default B withMiddleItem(org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item value) {
+        getEntity().setMiddleItem(value);
+        return (B)this;
+    }
+
+    default B withStatus(org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Status value) {
+        getEntity().setStatus(value);
+        return (B)this;
+    }
+
+    default B withWrapper(org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Wrapper<org.jusecase.builders.generator.oddities.EntityWithGenericParentClass.Item> value) {
+        getEntity().setWrapper(value);
+        return (B)this;
+    }
+}
