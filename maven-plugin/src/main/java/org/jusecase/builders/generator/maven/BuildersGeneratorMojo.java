@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.maven.plugins.annotations.LifecyclePhase.GENERATE_TEST_SOURCES;
-import static org.apache.maven.plugins.annotations.ResolutionScope.TEST;
+import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE;
 
-@Mojo(name = "generate-builders", defaultPhase = GENERATE_TEST_SOURCES, requiresDependencyResolution = TEST)
+@Mojo(name = "generate-builders", defaultPhase = GENERATE_TEST_SOURCES, requiresDependencyResolution = COMPILE)
 public class BuildersGeneratorMojo extends AbstractMojo {
 
     @Parameter(property = "project", required = true, readonly = true)
@@ -29,11 +29,11 @@ public class BuildersGeneratorMojo extends AbstractMojo {
     /**
      * Destination dir to store generated builder interfaces. <br>
      * Defaults to 'target/generated-test-sources/jusecase-builders'.<br>
-     * Your IDE should be able to pick up files from this location as sources automatically when generated.<br>
+     * Relative paths are resolved against the module. The directory is added to the test sources of the project.<br>
      * The directory must only contain generated builders: builders of earlier runs are deleted before generating.
      */
     @Parameter(defaultValue = "${project.build.directory}/generated-test-sources/jusecase-builders", property = "builders.targetDirectory")
-    public String targetDirectory;
+    public File targetDirectory;
 
     /**
      * List of packages to generate builders for.
@@ -74,12 +74,14 @@ public class BuildersGeneratorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
+        try (URLClassLoader classLoader = createClassLoader()) {
             getLog().info("Generating builder interfaces...");
 
+            warnAboutUnknownExcludes(classLoader);
+
             BuildersGenerator generator = new BuildersGenerator(
-                    getProjectClassLoader(),
-                    new File(targetDirectory),
+                    classLoader,
+                    targetDirectory,
                     packages,
                     classes,
                     excludeClasses,
@@ -87,6 +89,7 @@ public class BuildersGeneratorMojo extends AbstractMojo {
                     nestedClasses,
                     LineSeparator.fromString(lineSeparator).value);
             generator.generate();
+            project.addTestCompileSourceRoot(targetDirectory.getPath());
 
             getLog().info("Builder interfaces generated at " + targetDirectory);
 
@@ -95,14 +98,28 @@ public class BuildersGeneratorMojo extends AbstractMojo {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private ClassLoader getProjectClassLoader() throws DependencyResolutionRequiredException, MalformedURLException {
-        List<String> classpathElements = new ArrayList<>(project.getCompileClasspathElements());
-        classpathElements.addAll(project.getTestClasspathElements());
-        List<URL> classpathElementUrls = new ArrayList<>(classpathElements.size());
-        for (String classpathElement : classpathElements) {
-            classpathElementUrls.add(new File(classpathElement).toURI().toURL());
+    private void warnAboutUnknownExcludes(ClassLoader classLoader) {
+        if (excludeClasses == null) {
+            return;
         }
-        return new URLClassLoader(classpathElementUrls.toArray(new URL[0]), Thread.currentThread().getContextClassLoader());
+        for (String className : excludeClasses) {
+            if (classLoader.getResource(className.replace('.', '/') + ".class") == null) {
+                getLog().warn("excludeClasses entry '" + className + "' was not found on the compile classpath and has no effect. "
+                        + "Test classes are not part of it.");
+            }
+        }
+    }
+
+    /**
+     * Scans the production classes and their compile classpath. Test classes are not part of it, since they may depend
+     * on the generated builders. Parent is the platform loader, not the plugin's loader: the project's own Guava,
+     * builders etc. must win over the generator's copies, and scanning must not pick up the plugin's classpath.
+     */
+    private URLClassLoader createClassLoader() throws DependencyResolutionRequiredException, MalformedURLException {
+        List<URL> urls = new ArrayList<>();
+        for (String classpathElement : project.getCompileClasspathElements()) {
+            urls.add(new File(classpathElement).toURI().toURL());
+        }
+        return new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getPlatformClassLoader());
     }
 }

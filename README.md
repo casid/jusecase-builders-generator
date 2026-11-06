@@ -17,6 +17,24 @@ Generator for jusecase builders
 The root `pom.xml` builds `core` and `maven-plugin`. The Gradle plugin is a separate Gradle build that
 resolves the core from Maven, so run `mvn install` first, then `./gradlew build` inside `gradle-plugin`.
 
+## Upgrading to 2.0.0
+
+Maven plugin:
+
+- The artifact is now `org.jusecase:builders-generator-maven-plugin`.
+- Only production classes and their compile classpath are scanned. Entities in `src/test` no longer get builders, and
+  `classes` or `baseClasses` entries that only exist in test code fail with `Failed to load class`.
+- Classes on the plugin's own classpath are no longer scanned, so builders generated from them are gone.
+- `targetDirectory` is added to the test sources, so a manual `build-helper-maven-plugin` setup for it can be removed.
+- A relative `targetDirectory` is resolved against the module instead of the working directory.
+
+Both plugins:
+
+- Builders of earlier runs are deleted before generating, see [Target directory](#target-directory). Runs sharing a
+  target directory delete each other's builders, so give each run its own directory.
+- Generated builders use Unix line separators by default instead of the system's. Set `lineSeparator` to `System` to
+  keep the old behavior.
+
 ## Runtime dependency
 
 Generated builders use `org.jusecase:builders`. The plugins don't add it to your project, so declare it as a test
@@ -37,15 +55,23 @@ dependencies {
 }
 ```
 
+## Scanned classes
+
+Both plugins scan the production classes and their compile classpath in isolation from the plugin's own classpath.
+Test classes are not scanned, since they may depend on the generated builders, so entities in `src/test` don't get
+builders. Entries of `excludeClasses` that are not found are warned about.
+
 ## Target directory
 
 Builders are generated into a dedicated directory inside the build directory by default
 (`target/generated-test-sources/jusecase-builders` for Maven, `build/generated/sources/jusecase-builders/test`
-for Gradle) and are not checked in. This is the recommended setup.
+for Gradle) and are not checked in. This is the recommended setup. Both plugins add the directory to the test
+sources. A relative `targetDirectory` is resolved against the module or project.
 
-Checked-in builders are supported as well: point `targetDirectory` to a source directory and, for Gradle, set
-`addToTestSources = false`. Use a directory that only contains builders (e.g. `src/test/builders`), not a
-shared source root like `src/test/java`.
+Checked-in builders are supported as well: point `targetDirectory` to a source directory and generate them on demand.
+For Maven, run the goal manually instead of binding it to the lifecycle. For Gradle, set `addToTestSources = false`.
+Then add the directory to your test sources yourself. Use a directory that only contains builders
+(e.g. `src/test/builders`), not a shared source root like `src/test/java`.
 
 Since 2.0.0, builders of earlier runs are deleted before generating, so builders of removed or excluded classes
 don't linger. Only files marked with `@Generated("jusecase-builders-generator")` are deleted. Hidden files
