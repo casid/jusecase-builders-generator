@@ -11,16 +11,16 @@ import org.jusecase.builders.generator.BuildersGenerator;
 import org.jusecase.builders.generator.LineSeparator;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.apache.maven.plugins.annotations.LifecyclePhase.GENERATE_TEST_SOURCES;
-import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
-@Mojo(name = "generate-builders", defaultPhase = GENERATE_TEST_SOURCES, requiresDependencyResolution = COMPILE)
+@Mojo(name = "generate-builders", defaultPhase = GENERATE_TEST_SOURCES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class BuildersGeneratorMojo extends AbstractMojo {
 
     @Parameter(property = "project", required = true, readonly = true)
@@ -70,11 +70,46 @@ public class BuildersGeneratorMojo extends AbstractMojo {
      * @see LineSeparator
      */
     @Parameter(property = "builders.lineSeparator")
-    public String lineSeparator = LineSeparator.Unix.toString();
+    public String lineSeparator;
+
+    /**
+     * Scans the production classes and all their dependencies, including runtime-only ones: reflection on a class fails
+     * if a type it refers to is missing. Test classes are not part of it, since they may depend on the generated
+     * builders.
+     */
+    private List<File> classpath() throws DependencyResolutionRequiredException {
+        Set<String> elements = new LinkedHashSet<>(project.getCompileClasspathElements());
+        elements.addAll(project.getRuntimeClasspathElements());
+
+        List<File> files = new ArrayList<>();
+        for (String element : elements) {
+            files.add(new File(element));
+        }
+        return files;
+    }
+
+    /**
+     * The goal scans compiled classes. Running it manually on a module that was not compiled would find nothing, and
+     * the builders of earlier runs would be deleted for nothing.
+     */
+    private void checkProjectIsCompiled() throws MojoFailureException {
+        File outputDirectory = new File(project.getBuild().getOutputDirectory());
+        if (outputDirectory.exists()) {
+            return;
+        }
+        for (String sourceRoot : project.getCompileSourceRoots()) {
+            if (new File(sourceRoot).isDirectory()) {
+                throw new MojoFailureException("The production classes of " + project.getArtifactId() + " are not compiled yet ("
+                        + outputDirectory + " does not exist). Compile the module first, e.g. 'mvn compile builders-generator:generate-builders'.");
+            }
+        }
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try (URLClassLoader classLoader = createClassLoader()) {
+        checkProjectIsCompiled();
+
+        try (URLClassLoader classLoader = BuildersGenerator.createClassLoader(classpath())) {
             getLog().info("Generating builder interfaces...");
 
             BuildersGenerator generator = new BuildersGenerator(
@@ -95,18 +130,5 @@ public class BuildersGeneratorMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * Scans the production classes and their compile classpath. Test classes are not part of it, since they may depend
-     * on the generated builders. Parent is the platform loader, not the plugin's loader: the project's own Guava,
-     * builders etc. must win over the generator's copies, and scanning must not pick up the plugin's classpath.
-     */
-    private URLClassLoader createClassLoader() throws DependencyResolutionRequiredException, MalformedURLException {
-        List<URL> urls = new ArrayList<>();
-        for (String classpathElement : project.getCompileClasspathElements()) {
-            urls.add(new File(classpathElement).toURI().toURL());
-        }
-        return new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getPlatformClassLoader());
     }
 }

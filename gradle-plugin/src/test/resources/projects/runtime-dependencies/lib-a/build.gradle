@@ -1,0 +1,8 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // Not exposed to the compile classpath of consumers, only to their runtime classpath
+    implementation project(':lib-b')
+}

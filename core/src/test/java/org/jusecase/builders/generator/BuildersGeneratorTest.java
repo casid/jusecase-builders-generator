@@ -95,6 +95,39 @@ public class BuildersGeneratorTest {
     }
 
     @Test
+    public void excludeNestedClass() {
+        givenPackages("org.jusecase.builders.generator.usecases");
+        givenExcludeClasses("org.jusecase.builders.generator.usecases.DummyUsecase$Request");
+
+        whenBuildersAreGenerated();
+
+        thenNumberOfGeneratedBuildersIs(1);
+        thenBuilderIsGenerated("org/jusecase/builders/generator/usecases/DummyUsecaseResponseBuilderMethods.java");
+        assertThat(warnings).isEmpty();
+    }
+
+    @Test
+    public void excludeNestedClass_specificClass() {
+        givenClasses("org.jusecase.builders.generator.usecases.DummyUsecase");
+        givenExcludeClasses("org.jusecase.builders.generator.usecases.DummyUsecase$Request");
+
+        whenBuildersAreGenerated();
+
+        thenNumberOfGeneratedBuildersIs(1);
+        thenBuilderIsGenerated("org/jusecase/builders/generator/usecases/DummyUsecaseResponseBuilderMethods.java");
+    }
+
+    @Test
+    public void nonAsciiPropertyNames_warn() {
+        givenClasses("org.jusecase.builders.generator.oddities.EntityWithNonAsciiNames");
+
+        whenBuildersAreGenerated();
+
+        assertThat(warnings).hasSize(4);
+        assertThat(warnings).allSatisfy(w -> assertThat(w).contains("EntityWithNonAsciiNames"));
+    }
+
+    @Test
     public void unknownExcludeClass_warns() {
         givenPackages("org.jusecase.builders.generator.entities");
         givenExcludeClasses("org.jusecase.builders.generator.entities.DoesNotExist");
@@ -204,6 +237,22 @@ public class BuildersGeneratorTest {
         whenBuildersAreGenerated();
 
         assertThat(stale.getParent()).doesNotExist();
+        thenNumberOfGeneratedBuildersIs(1);
+    }
+
+    @Test
+    public void failingGeneration_keepsExistingBuilders() throws IOException {
+        Path existing = temporaryFolder.resolve("org/jusecase/old/ExistingBuilderMethods.java");
+        Files.createDirectories(existing.getParent());
+        Files.write(existing, "@Generated(\"jusecase-builders-generator\")".getBytes(StandardCharsets.UTF_8));
+        givenClasses(
+                "org.jusecase.builders.generator.entities.Card",
+                "org.jusecase.builders.generator.entities.DoesNotExist"
+        );
+
+        assertThatThrownBy(this::whenBuildersAreGenerated).isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(existing).exists();
         thenNumberOfGeneratedBuildersIs(1);
     }
 

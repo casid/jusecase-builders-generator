@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd ">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.jusecase.it</groupId>
+    <artifactId>manual-run-uncompiled</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jusecase</groupId>
+                <artifactId>builders-generator-maven-plugin</artifactId>
+                <version>@project.version@</version>
+                <configuration>
+                    <targetDirectory>${project.basedir}/src/test/builders</targetDirectory>
+                    <packages>
+                        <param>example</param>
+                    </packages>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

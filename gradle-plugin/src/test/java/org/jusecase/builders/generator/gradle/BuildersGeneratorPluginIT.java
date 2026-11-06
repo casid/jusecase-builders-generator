@@ -57,6 +57,25 @@ class BuildersGeneratorPluginIT {
         assertThat(result.getOutput()).contains("Reusing configuration cache");
     }
 
+    @Test
+    void scansRuntimeOnlyDependenciesOfTheProject() throws IOException {
+        copySampleProject("runtime-dependencies");
+
+        runner(":app:generateBuilders").build();
+
+        Path generated = projectDir.resolve("app/build/generated/sources/jusecase-builders/test/app/EntityBuilderMethods.java");
+        assertThat(generated).content().contains("withThing");
+    }
+
+    @Test
+    void warnsIfJavaPluginIsMissing() throws IOException {
+        copySampleProject("without-java-plugin");
+
+        BuildResult result = runner("help").build();
+
+        assertThat(result.getOutput()).contains("requires the 'java' plugin");
+    }
+
     private GradleRunner runner(String... arguments) {
         String[] withStacktrace = Stream.concat(Stream.of(arguments), Stream.of("--stacktrace")).toArray(String[]::new);
         return GradleRunner.create()

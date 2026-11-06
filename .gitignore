@@ -94,5 +94,9 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Gradle ###
-.gradle/
-build/
+/gradle-plugin/.gradle/
+/gradle-plugin/build/
+
+### Claude Code ###
+.claude/tmp/
+.claude/settings.local.json

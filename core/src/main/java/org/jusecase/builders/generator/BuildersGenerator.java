@@ -3,11 +3,14 @@ package org.jusecase.builders.generator;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -44,15 +47,36 @@ public class BuildersGenerator {
         this.baseClasses = loadBaseClasses(classLoader, baseClasses);
     }
 
+    /**
+     * Creates the class loader to scan, containing exactly the given classpath. The parent is the platform loader, not
+     * the caller's loader: the project's own Guava, builders etc. must win over the generator's copies, and scanning
+     * must not pick up the generator's classpath.
+     */
+    public static URLClassLoader createClassLoader(Collection<File> classpath) {
+        List<URL> urls = new ArrayList<>();
+        for (File file : classpath) {
+            try {
+                urls.add(file.toURI().toURL());
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Invalid classpath element " + file, e);
+            }
+        }
+        return new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getPlatformClassLoader());
+    }
+
     public void generate() {
         warnAboutUnknownExcludes();
-        cleanTargetDirectory();
 
         Set<Class<?>> classes = new HashSet<>();
         addPackageClasses(classes);
         addSpecificClasses(classes);
 
-        generateBuilders(classes);
+        // Everything that can fail is done before touching the target directory, so a failing run
+        // doesn't leave it without builders.
+        Map<File, byte[]> builders = renderBuilders(classes);
+
+        cleanTargetDirectory();
+        writeBuilders(builders);
     }
 
     private void warnAboutUnknownExcludes() {
@@ -164,26 +188,37 @@ public class BuildersGenerator {
         return new String(Files.readAllBytes(file), StandardCharsets.UTF_8).contains(GENERATED_MARKER);
     }
 
-    private void generateBuilders(Set<Class<?>> classes) {
-        classes.forEach(this::generateBuilder);
+    private Map<File, byte[]> renderBuilders(Set<Class<?>> classes) {
+        Map<File, byte[]> builders = new LinkedHashMap<>();
+        for (Class<?> clazz : classes) {
+            BuilderGenerator generator = new BuilderGenerator(clazz, "UTF-8", lineSeparator, logger);
+            if (!generator.isBuildable()) {
+                continue;
+            }
+
+            String packageName = clazz.getPackage().getName();
+            File packageDirectory = new File(targetDirectory, packageName.replace('.', File.separatorChar));
+            File classFile = new File(packageDirectory, generator.getBuilderClassName() + ".java");
+
+            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                generator.generate(os);
+                builders.put(classFile, os.toByteArray());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        return builders;
     }
 
-    private void generateBuilder(Class<?> clazz) {
-        BuilderGenerator generator = new BuilderGenerator(clazz, "UTF-8", lineSeparator);
-        if (!generator.isBuildable()) {
-            return;
-        }
-
-        String packageName = clazz.getPackage().getName();
-        File packageDirectory = new File(targetDirectory, packageName.replace('.', File.separatorChar));
-        File classFile = new File(packageDirectory, generator.getBuilderClassName() + ".java");
-
-        try {
-            packageDirectory.mkdirs();
-            classFile.createNewFile();
-            generator.generate(new FileOutputStream(classFile));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private void writeBuilders(Map<File, byte[]> builders) {
+        for (Map.Entry<File, byte[]> builder : builders.entrySet()) {
+            File classFile = builder.getKey();
+            try {
+                Files.createDirectories(classFile.getParentFile().toPath());
+                Files.write(classFile.toPath(), builder.getValue());
+            } catch (IOException e) {
+                throw new UncheckedIOException("Failed to write " + classFile, e);
+            }
         }
     }
 
@@ -248,7 +283,8 @@ public class BuildersGenerator {
     private void addNestedClasses(Set<Class<?>> classes, Class<?> clazz) {
         for (Class<?> nestedClass : clazz.getDeclaredClasses()) {
             // The generated builder can't access private classes
-            if (Modifier.isStatic(nestedClass.getModifiers()) && !Modifier.isPrivate(nestedClass.getModifiers())) {
+            if (Modifier.isStatic(nestedClass.getModifiers()) && !Modifier.isPrivate(nestedClass.getModifiers())
+                    && !excludeClasses.contains(nestedClass.getName())) {
                 classes.add(nestedClass);
             }
         }

@@ -10,11 +10,7 @@ import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.jusecase.builders.generator.BuildersGenerator;
 
-import java.io.File;
-import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuildersWorker.Parameters> {
 
@@ -35,7 +31,7 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
     public void execute() {
         Parameters p = getParameters();
 
-        try (URLClassLoader classLoader = createClassLoader(p)) {
+        try (URLClassLoader classLoader = BuildersGenerator.createClassLoader(p.getProjectClasspath().getFiles())) {
             new BuildersGenerator(
                     classLoader,
                     p.getTargetDirectory().get().getAsFile(),
@@ -49,16 +45,6 @@ public abstract class GenerateBuildersWorker implements WorkAction<GenerateBuild
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate builders: " + e.getMessage(), e);
         }
-    }
-
-    private static URLClassLoader createClassLoader(Parameters p) throws Exception {
-        List<URL> urls = new ArrayList<>();
-        for (File file : p.getProjectClasspath()) {
-            urls.add(file.toURI().toURL());
-        }
-        // Parent is the platform loader, not the worker's loader: the project's own Guava, builders etc. must win
-        // over the generator's copies, and scanning must not pick up the generator's classpath.
-        return new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getPlatformClassLoader());
     }
 
     private static String[] toArray(ListProperty<String> property) {

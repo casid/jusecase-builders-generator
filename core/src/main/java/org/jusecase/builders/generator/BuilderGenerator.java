@@ -17,10 +17,14 @@ public class BuilderGenerator {
     private final Collection<Property> properties;
 
     public BuilderGenerator(Class<?> entityClass, String encoding, String lineSeparator) {
+        this(entityClass, encoding, lineSeparator, message -> {});
+    }
+
+    public BuilderGenerator(Class<?> entityClass, String encoding, String lineSeparator, Logger logger) {
         this.entityClass = entityClass;
         this.lineSeparator = lineSeparator;
         this.charset = Charset.forName(encoding);
-        this.propertiesResolver = new PropertiesResolver(entityClass);
+        this.propertiesResolver = new PropertiesResolver(entityClass, logger);
         this.properties = propertiesResolver.resolveProperties();
     }
 

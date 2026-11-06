@@ -22,12 +22,20 @@ public class BuildersGeneratorPlugin implements Plugin<Project> {
         extension.getNestedClasses().convention(true);
         extension.getLineSeparator().convention(LineSeparator.Unix);
 
+        project.afterEvaluate(p -> {
+            if (!p.getPlugins().hasPlugin(JavaPlugin.class)) {
+                p.getLogger().warn("The builders generator plugin requires the 'java' plugin (or 'java-library'), which is not applied to "
+                        + p.getPath() + ". The generateBuilders task is not available.");
+            }
+        });
+
         project.getPlugins().withType(JavaPlugin.class, javaPlugin -> {
             JavaPluginExtension java = project.getExtensions().getByType(JavaPluginExtension.class);
             JavaToolchainService toolchains = project.getExtensions().getByType(JavaToolchainService.class);
             SourceSet main = java.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
             SourceSet test = java.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
-            extension.getClasspath().convention(project.files(main.getOutput(), main.getCompileClasspath()));
+            // Runtime dependencies are needed too: reflection on a class fails if a type it refers to is missing.
+            extension.getClasspath().convention(project.files(main.getOutput(), main.getCompileClasspath(), main.getRuntimeClasspath()));
 
             TaskProvider<GenerateBuildersTask> generate = project.getTasks().register("generateBuilders", GenerateBuildersTask.class, task -> {
                 task.setGroup("build");

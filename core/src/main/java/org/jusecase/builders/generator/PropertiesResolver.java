@@ -11,10 +11,18 @@ import java.util.*;
 public class PropertiesResolver {
     private final Class<?> entityClass;
     private final TypePrinter printer;
+    private final TypeToken<?> entityType;
+    private final Logger logger;
 
     public PropertiesResolver(Class<?> entityClass) {
+        this(entityClass, message -> {});
+    }
+
+    public PropertiesResolver(Class<?> entityClass, Logger logger) {
         this.entityClass = entityClass;
+        this.logger = logger;
         this.printer = new TypePrinter(entityClass);
+        this.entityType = TypeToken.of(entityClass);
     }
 
     public String getEntityTypeParameters() {
@@ -86,21 +94,63 @@ public class PropertiesResolver {
      * Resolves type variables of generic superclasses to the actual type arguments of the entity class.
      */
     private Type resolveType(Type type) {
-        return TypeToken.of(entityClass).resolveType(type).getType();
+        return entityType.resolveType(type).getType();
     }
 
     private boolean isSuitableField(Field field) {
         return Modifier.isPublic(field.getModifiers()) &&
               !Modifier.isStatic(field.getModifiers()) &&
-              !Modifier.isFinal(field.getModifiers());
+              !Modifier.isFinal(field.getModifiers()) &&
+              isSupportedName(field.getName());
     }
 
     private boolean isSuitableMethod(Method method) {
         return Modifier.isPublic(method.getModifiers()) &&
+                !Modifier.isStatic(method.getModifiers()) &&
                 !method.isBridge() &&
                 method.getReturnType().equals(void.class) &&
                 method.getParameterTypes().length == 1 &&
-                method.getName().matches("^set[A-Z].*");
+                !declaresCheckedException(method) &&
+                isSetterName(method.getName()) &&
+                isSupportedName(method.getName());
+    }
+
+    private static boolean isSetterName(String name) {
+        return name.length() > 3 && name.startsWith("set") && Character.isUpperCase(name.charAt(3));
+    }
+
+    /**
+     * Only ASCII names are supported. Others are skipped with a warning, as they are not worth the trouble of case
+     * conversion and encoding issues in generated sources.
+     */
+    private boolean isSupportedName(String name) {
+        if (isAscii(name)) {
+            return true;
+        }
+        logger.warn("Skipping '" + name + "' of " + entityClass.getName() + ": only ASCII names are supported.");
+        return false;
+    }
+
+    private static boolean isAscii(String name) {
+        for (int i = 0; i < name.length(); i++) {
+            if (name.charAt(i) > 127) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * The generated builder methods call setters without handling exceptions, so setters declaring checked exceptions
+     * would produce builders that don't compile.
+     */
+    private boolean declaresCheckedException(Method method) {
+        for (Class<?> exceptionType : method.getExceptionTypes()) {
+            if (!RuntimeException.class.isAssignableFrom(exceptionType) && !Error.class.isAssignableFrom(exceptionType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static class Property implements Comparable<Property> {
@@ -146,7 +196,8 @@ public class PropertiesResolver {
 
 
         public String nameStartingWithUppercase() {
-            return ("" + name.charAt(0)).toUpperCase() +  name.substring(1);
+            // Not String.toUpperCase(), which depends on the default locale (e.g. "i" becomes "İ" in Turkish)
+            return Character.toUpperCase(name.charAt(0)) + name.substring(1);
         }
     }
 }
