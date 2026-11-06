@@ -35,17 +35,25 @@ final class TypePrinter {
     }
 
     private static Map<String, String> entityVariableNames(Class<?> entityClass) {
-        Set<String> taken = new HashSet<>(BUILDER_TYPE_PARAMETERS);
+        List<String> names = new ArrayList<>();
         for (TypeVariable<?> variable : entityClass.getTypeParameters()) {
-            taken.add(variable.getName());
+            names.add(variable.getName());
         }
+        return uniqueNames(names, BUILDER_TYPE_PARAMETERS);
+    }
 
-        Map<String, String> names = new LinkedHashMap<>();
-        for (TypeVariable<?> variable : entityClass.getTypeParameters()) {
-            String name = variable.getName();
-            names.put(name, BUILDER_TYPE_PARAMETERS.contains(name) ? uniqueName(name, taken) : name);
+    /**
+     * @return the names mapped to themselves, or to a new name if they are reserved
+     */
+    private static Map<String, String> uniqueNames(Collection<String> names, Set<String> reserved) {
+        Set<String> taken = new HashSet<>(reserved);
+        taken.addAll(names);
+
+        Map<String, String> uniqueNames = new LinkedHashMap<>();
+        for (String name : names) {
+            uniqueNames.put(name, reserved.contains(name) ? uniqueName(name, taken) : name);
         }
-        return names;
+        return uniqueNames;
     }
 
     private static String uniqueName(String name, Set<String> taken) {
@@ -76,14 +84,7 @@ final class TypePrinter {
 
         Set<String> reserved = new HashSet<>(BUILDER_TYPE_PARAMETERS);
         reserved.addAll(entityVariableNames.values());
-        Set<String> taken = new HashSet<>(reserved);
-        taken.addAll(variables.keySet());
-
-        Map<String, String> names = new HashMap<>();
-        for (String name : variables.keySet()) {
-            names.put(name, reserved.contains(name) ? uniqueName(name, taken) : name);
-        }
-        return new TypePrinter(entityClass, entityVariableNames, variables, names);
+        return new TypePrinter(entityClass, entityVariableNames, variables, uniqueNames(variables.keySet(), reserved));
     }
 
     private boolean isForeign(TypeVariable<?> variable) {
