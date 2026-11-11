@@ -1,0 +1,4 @@
+    default ${method-type-parameters}B with${property-name}(${property-type} value) {
+        getEntity().set${property-name}(value);
+        return (B)this;
+    }

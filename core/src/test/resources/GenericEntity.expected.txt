@@ -1,0 +1,20 @@
+package org.jusecase.builders.generator.oddities;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface GenericEntityBuilderMethods<T extends GenericEntity<V>, B extends Builder, V extends java.lang.Number> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withValue(V value) {
+        getEntity().setValue(value);
+        return (B)this;
+    }
+}

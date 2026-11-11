@@ -1,0 +1,25 @@
+package org.jusecase.builders.generator.oddities;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface EntityWithParentClassBuilderMethods<T extends EntityWithParentClass, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withChildValue(java.lang.String value) {
+        getEntity().setChildValue(value);
+        return (B)this;
+    }
+
+    default B withParentValue(java.lang.String value) {
+        getEntity().setParentValue(value);
+        return (B)this;
+    }
+}

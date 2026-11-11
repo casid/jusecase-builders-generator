@@ -1,0 +1,12 @@
+plugins {
+    id 'java'
+    id 'org.jusecase.builders-generator'
+}
+
+dependencies {
+    implementation project(':lib-a')
+}
+
+buildersGenerator {
+    packages = ['app']
+}

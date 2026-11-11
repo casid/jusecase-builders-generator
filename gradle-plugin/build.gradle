@@ -1,0 +1,63 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '2.2.1'
+}
+
+group = 'org.jusecase'
+// Single source of truth for the version is the parent POM of the Maven reactor.
+version = new groovy.xml.XmlSlurper().parse(file('../pom.xml')).version.text()
+description = 'Gradle plugin that generates builders for descriptive unit test setups.'
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+tasks.withType(Javadoc).configureEach {
+    // Skip "no comment" / "no @return" warnings for the plugin's self-describing API
+    options.addBooleanOption('Xdoclint:all,-missing', true)
+}
+
+repositories {
+    // The core is built by the Maven reactor, so `mvn install` has to run first when building locally.
+    mavenLocal {
+        content { includeGroup 'org.jusecase' }
+    }
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jusecase:builders-generator-core:${version}"
+}
+
+dependencies {
+    testImplementation gradleTestKit()
+    testImplementation platform('org.junit:junit-bom:6.1.3')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core:3.27.7'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+gradlePlugin {
+    website = 'http://jusecase.org'
+    vcsUrl = 'https://github.com/casid/jusecase-builders-generator.git'
+
+    plugins {
+        buildersGenerator {
+            id = 'org.jusecase.builders-generator'
+            implementationClass = 'org.jusecase.builders.generator.gradle.BuildersGeneratorPlugin'
+            displayName = 'JUsecase Builders Generator'
+            tags.set(['jusecase', 'builders', 'testing', 'code-generation'])
+            description = project.description
+        }
+    }
+}

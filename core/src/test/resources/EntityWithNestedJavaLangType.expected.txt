@@ -1,0 +1,35 @@
+package org.jusecase.builders.generator.oddities;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface EntityWithNestedJavaLangTypeBuilderMethods<T extends EntityWithNestedJavaLangType, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withHandler(java.lang.Thread.UncaughtExceptionHandler value) {
+        getEntity().setHandler(value);
+        return (B)this;
+    }
+
+    default B withName(java.lang.String value) {
+        getEntity().setName(value);
+        return (B)this;
+    }
+
+    default B withState(java.lang.Thread.State value) {
+        getEntity().setState(value);
+        return (B)this;
+    }
+
+    default B withStateList(java.util.List<java.lang.Thread.State> value) {
+        getEntity().setStateList(value);
+        return (B)this;
+    }
+}

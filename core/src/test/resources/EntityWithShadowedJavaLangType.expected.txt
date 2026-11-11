@@ -1,0 +1,20 @@
+package org.jusecase.builders.generator.oddities.shadow;
+
+import javax.annotation.processing.Generated;
+
+import org.jusecase.builders.Builder;
+
+@Generated("jusecase-builders-generator")
+public interface EntityWithShadowedJavaLangTypeBuilderMethods<T extends EntityWithShadowedJavaLangType, B extends Builder> extends Builder<T> {
+    @Override
+    default T build() {
+        return getEntity();
+    }
+
+    T getEntity();
+
+    default B withInitial(java.lang.Character value) {
+        getEntity().setInitial(value);
+        return (B)this;
+    }
+}
